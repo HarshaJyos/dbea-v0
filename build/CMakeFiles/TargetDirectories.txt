@@ -1,0 +1,3 @@
+C:/dbea/build/CMakeFiles/dbea_main.dir
+C:/dbea/build/CMakeFiles/edit_cache.dir
+C:/dbea/build/CMakeFiles/rebuild_cache.dir
