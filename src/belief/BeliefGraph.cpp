@@ -1,9 +1,11 @@
 #include "dbea/BeliefGraph.h"
 #include <algorithm>
+#include <iostream>
 
 namespace dbea {
 
-void BeliefGraph::add_belief(const std::shared_ptr<BeliefNode>& node) {
+void BeliefGraph::add_belief(
+    const std::shared_ptr<BeliefNode>& node) {
     nodes.push_back(node);
 }
 
@@ -34,6 +36,30 @@ BeliefGraph::compete(const PatternSignature& input) {
     return winner;
 }
 
+std::shared_ptr<BeliefNode>
+BeliefGraph::maybe_create_belief(
+    const PatternSignature& input,
+    double activation_threshold) {
+
+    auto winner = compete(input);
+
+    if (!winner || winner->activation < activation_threshold) {
+        auto newborn = std::make_shared<BeliefNode>(
+            "belief_" + std::to_string(nodes.size()),
+            input
+        );
+
+        nodes.push_back(newborn);
+
+        std::cout << "[DBEA] New belief created: "
+                  << newborn->id << std::endl;
+
+        return newborn;
+    }
+
+    return winner;
+}
+
 void BeliefGraph::prune(double threshold) {
     nodes.erase(
         std::remove_if(nodes.begin(), nodes.end(),
@@ -43,4 +69,4 @@ void BeliefGraph::prune(double threshold) {
         nodes.end());
 }
 
-}
+} // namespace dbea

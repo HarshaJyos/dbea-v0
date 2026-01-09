@@ -16,9 +16,10 @@ Agent::Agent(const Config& cfg) : config(cfg) {
 }
 
 void Agent::perceive(const PatternSignature& input) {
-    belief_graph.compete(input);
+    belief_graph.maybe_create_belief(input, 0.8);
     belief_graph.prune();
 }
+
 
 Action Agent::decide() {
     return available_actions[0];
