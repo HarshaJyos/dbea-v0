@@ -3,8 +3,15 @@
 
 namespace dbea {
 
+// Constructor definition
+BeliefNode::BeliefNode(const std::string& id_, const PatternSignature& proto)
+    : id(id_), prototype(proto), confidence(0.5), activation(0.0)
+{
+    // Initialize empty action_values map
+    action_values.clear();
+}
+
 double BeliefNode::match_score(const PatternSignature& input) const {
-    // Simple cosine-like similarity (v0)
     double score = 0.0;
     size_t n = std::min(input.features.size(), prototype.features.size());
 
@@ -25,4 +32,11 @@ void BeliefNode::decay(double amount) {
     if (confidence < 0.0) confidence = 0.0;
 }
 
+// Helper to get predicted value for an action
+double BeliefNode::predict_action_value(int action_id) const {
+    auto it = action_values.find(action_id);
+    if (it != action_values.end()) return it->second;
+    return 0.0;
 }
+
+} // namespace dbea

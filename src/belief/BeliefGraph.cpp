@@ -1,17 +1,15 @@
 #include "dbea/BeliefGraph.h"
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 namespace dbea {
 
-void BeliefGraph::add_belief(
-    const std::shared_ptr<BeliefNode>& node) {
+void BeliefGraph::add_belief(const std::shared_ptr<BeliefNode>& node) {
     nodes.push_back(node);
 }
 
-std::shared_ptr<BeliefNode>
-BeliefGraph::compete(const PatternSignature& input) {
-
+std::shared_ptr<BeliefNode> BeliefGraph::compete(const PatternSignature& input) {
     double best_score = -1.0;
     std::shared_ptr<BeliefNode> winner = nullptr;
 
@@ -25,6 +23,7 @@ BeliefGraph::compete(const PatternSignature& input) {
         }
     }
 
+    // Reinforce winner, decay others
     for (auto& node : nodes) {
         if (node == winner) {
             node->reinforce(0.05);
@@ -36,11 +35,10 @@ BeliefGraph::compete(const PatternSignature& input) {
     return winner;
 }
 
-std::shared_ptr<BeliefNode>
-BeliefGraph::maybe_create_belief(
+std::shared_ptr<BeliefNode> BeliefGraph::maybe_create_belief(
     const PatternSignature& input,
-    double activation_threshold) {
-
+    double activation_threshold
+) {
     auto winner = compete(input);
 
     if (!winner || winner->activation < activation_threshold) {
@@ -51,8 +49,7 @@ BeliefGraph::maybe_create_belief(
 
         nodes.push_back(newborn);
 
-        std::cout << "[DBEA] New belief created: "
-                  << newborn->id << std::endl;
+        std::cout << "[DBEA] New belief created: " << newborn->id << std::endl;
 
         return newborn;
     }
@@ -62,11 +59,14 @@ BeliefGraph::maybe_create_belief(
 
 void BeliefGraph::prune(double threshold) {
     nodes.erase(
-        std::remove_if(nodes.begin(), nodes.end(),
+        std::remove_if(
+            nodes.begin(), nodes.end(),
             [threshold](const std::shared_ptr<BeliefNode>& n) {
                 return n->confidence < threshold;
-            }),
-        nodes.end());
+            }
+        ),
+        nodes.end()
+    );
 }
 
 } // namespace dbea
