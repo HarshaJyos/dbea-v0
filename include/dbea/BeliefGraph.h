@@ -1,14 +1,18 @@
 #pragma once
-#include "dbea/BeliefNode.h"
 #include <vector>
 #include <memory>
+#include "dbea/BeliefNode.h"
+#include "dbea/PatternSignature.h"
+
+namespace dbea {
 
 class BeliefGraph {
 public:
     std::vector<std::shared_ptr<BeliefNode>> nodes;
 
-    BeliefGraph();
     void add_belief(const std::shared_ptr<BeliefNode>& node);
-    void prune_beliefs();
-    void activate_beliefs();
+    std::shared_ptr<BeliefNode> compete(const PatternSignature& input);
+    void prune(double threshold = 0.1);
 };
+
+}
