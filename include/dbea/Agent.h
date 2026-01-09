@@ -6,6 +6,7 @@
 #include "dbea/PatternSignature.h"
 #include "dbea/Config.h"
 #include <vector>
+#include <utility> // for std::pair
 
 namespace dbea {
 
@@ -17,6 +18,13 @@ public:
     void receive_reward(double reward_valence, double reward_surprise);
     void learn();
 
+    // Option 2: getter for proto-belief action values
+    std::pair<double,double> get_proto_action_values() const {
+        if (belief_graph.nodes.empty()) return {0.0, 0.0};
+        const auto& proto = belief_graph.nodes.front();
+        return {proto->predict_action_value(0), proto->predict_action_value(1)};
+    }
+
 private:
     Config config;
     BeliefGraph belief_graph;
@@ -27,4 +35,4 @@ private:
     double last_reward = 0.0;
 };
 
-}
+} // namespace dbea
