@@ -22,6 +22,9 @@ private:
     BeliefGraph belief_graph;
     EmotionState emotion;
     std::vector<Action> available_actions;
+    
+    // Store the last reward received
+    double last_reward = 0.0;
 };
 
 }

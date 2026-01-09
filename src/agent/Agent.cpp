@@ -68,10 +68,20 @@ Action Agent::decide() {
 
 void Agent::receive_reward(double v, double s) {
     emotion.update(v, s);
+    last_reward = v; // for simplicity, use valence as reward
 }
 
+
 void Agent::learn() {
-    // Learning from rewards will be implemented later
+    // Update beliefs’ action values
+    for (auto& belief : belief_graph.nodes) {
+        for (const auto& action : available_actions) {
+            // reward scaled by belief activation
+            double scaled_reward = belief->activation * last_reward;
+            belief->learn_action_value(action.id, scaled_reward, config.learning_rate);
+        }
+    }
 }
+
 
 } // namespace dbea

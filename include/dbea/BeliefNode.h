@@ -5,27 +5,31 @@
 
 namespace dbea {
 
-class BeliefNode {
-public:
+struct BeliefNode {
     std::string id;
     PatternSignature prototype;
 
-    double confidence = 0.5;
-    double activation = 0.0;
+    double confidence;
+    double activation;
 
-    // NEW: expected utility per action
+    // NEW: action value table
     std::unordered_map<int, double> action_values;
 
-    BeliefNode(const std::string& id,
-               const PatternSignature& proto);
+    BeliefNode(const std::string& id_,
+               const PatternSignature& proto)
+        : id(id_), prototype(proto),
+          confidence(0.5), activation(0.0) {}
 
     double match_score(const PatternSignature& input) const;
 
     void reinforce(double amount);
     void decay(double amount);
 
-    // NEW
+    // NEW: predict value for an action
     double predict_action_value(int action_id) const;
+
+    // NEW: update action value from reward
+    void learn_action_value(int action_id, double reward, double learning_rate);
 };
 
-}
+} // namespace dbea
