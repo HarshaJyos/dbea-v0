@@ -10,20 +10,17 @@
 using namespace dbea;
 
 // Helper: Slowly evolve baseline personality across lifetimes
-// Helper: Slowly evolve baseline personality across lifetimes
-void evolve_personality_baseline(EmotionState &emotion, std::mt19937 &rng)
-{
+void evolve_personality_baseline(EmotionState& emotion, std::mt19937& rng) {
     std::normal_distribution<double> noise(0.0, 0.015);
     emotion.dominance = std::clamp(emotion.dominance * 0.985 + noise(rng), 0.0, 1.0);
-    emotion.fear = std::clamp(emotion.fear * 0.97 + noise(rng), 0.0, 1.0);
+    emotion.fear      = std::clamp(emotion.fear      * 0.97  + noise(rng), 0.0, 1.0);
     // Reset transient emotions each lifetime
-    emotion.valence = 0.0;
+    emotion.valence   = 0.0;
     emotion.curiosity = 0.5;
     emotion.explore_bias = 0.0;
 }
 
-int main()
-{
+int main() {
     Config cfg;
     cfg.max_beliefs = 100;
     cfg.exploration_rate = 0.8;
@@ -32,7 +29,7 @@ int main()
     std::mt19937 rng(42);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    const int num_lifetimes = 6; // 6 lives total
+    const int num_lifetimes = 6;
     const int episodes_per_lifetime = 10;
     const int steps_per_episode = 5;
 
@@ -42,47 +39,47 @@ int main()
 
     Agent agent(cfg);
 
-    for (int life = 0; life < num_lifetimes; ++life)
-    {
+    // CSV logging setup
+    std::ofstream emo_csv("emotion_trajectory.csv", std::ios::trunc);
+    if (!emo_csv.is_open()) {
+        std::cerr << "Failed to open emotion_trajectory.csv for writing!\n";
+        return 1;
+    }
+    emo_csv << "Lifetime,Episode,Step,Valence,Fear,Dominance,ExploreBias\n";
+    emo_csv << std::fixed << std::setprecision(6);
+
+    for (int life = 0; life < num_lifetimes; ++life) {
         std::cout << "\n┌────────────────────────────────────┐\n"
                   << "│ Starting Lifetime " << (life + 1) << " / " << num_lifetimes << "   ";
 
         bool is_trauma = (life == 2);
-        if (is_trauma)
-        {
-            std::cout << " [TRAUMA PHASE] ";
+        if (is_trauma) {
+            std::cout << " [TRAUMA PHASE - intensified] ";
         }
         std::cout << "│\n└────────────────────────────────────┘\n";
 
         // Load from previous life (skip first)
-        if (life > 0)
-        {
-            try
-            {
+        if (life > 0) {
+            try {
                 agent.load(save_file);
                 std::cout << "Loaded state from previous lifetime.\n";
 
-                // Evolve baseline personality (using getter + setter)
-                EmotionState current_emotion = agent.get_emotion();
-                evolve_personality_baseline(current_emotion, rng);
-                agent.set_emotion(current_emotion);
+                EmotionState current = agent.get_emotion();
+                evolve_personality_baseline(current, rng);
+                agent.set_emotion(current);
 
-                std::cout << "Current baseline: Dominance=" << current_emotion.dominance
-                          << " | Fear=" << current_emotion.fear << "\n";
-            }
-            catch (const std::exception &e)
-            {
+                std::cout << "Current baseline: Dominance=" << current.dominance
+                          << " | Fear=" << current.fear << "\n";
+            } catch (const std::exception& e) {
                 std::cout << "No previous state or load failed: " << e.what() << "\n";
             }
         }
 
-        for (int ep = 0; ep < episodes_per_lifetime; ++ep)
-        {
+        for (int ep = 0; ep < episodes_per_lifetime; ++ep) {
             std::cout << "\n=== Episode " << ep << " ===\n";
             cfg.merge_threshold = 0.95 - 0.01 * ep;
 
-            for (int step = 0; step < steps_per_episode; ++step)
-            {
+            for (int step = 0; step < steps_per_episode; ++step) {
                 // Perception
                 int discrete_state = step % 4;
                 std::uniform_real_distribution<double> small_noise(-0.01, 0.01);
@@ -91,64 +88,47 @@ int main()
 
                 Action action = agent.decide();
 
-                // Reward logic (trauma = much harsher negatives)
+                // Reward logic
                 double r = dist(rng);
                 double reward_valence, reward_surprise = 0.05 + (dist(rng) * 0.1);
 
-                if (is_trauma)
-                {
-                    // Trauma phase: 30% chance severe negative, higher punishment
-                    if (r < 0.30)
-                    {
-                        reward_valence = -0.35 - (dist(rng) * 0.15); // -0.35 to -0.5
-                        reward_surprise += 0.6;
+                if (is_trauma) {
+                    // **Intensified trauma**: 40% chance severe negative (-0.45 to -0.65)
+                    if (r < 0.40) {
+                        reward_valence = -0.45 - (dist(rng) * 0.20);  // -0.45 to -0.65
+                        reward_surprise += 0.7;
+                    } else if (r < 0.60) {
+                        reward_valence = 0.06 + (dist(rng) * 0.06);
+                    } else {
+                        reward_valence = 0.02 + (dist(rng) * 0.02);
                     }
-                    else if (r < 0.50)
-                    {
-                        reward_valence = 0.08 + (dist(rng) * 0.08);
-                    }
-                    else
-                    {
-                        reward_valence = 0.02 + (dist(rng) * 0.03);
-                    }
-                }
-                else
-                {
+                } else {
                     // Normal phase
-                    if (r < 0.08)
-                    {
+                    if (r < 0.08) {
                         reward_valence = -0.15 - (dist(rng) * 0.1);
                         reward_surprise += 0.4;
-                    }
-                    else if (r < 0.38)
-                    {
+                    } else if (r < 0.38) {
                         reward_valence = 0.15 + (dist(rng) * 0.1);
-                    }
-                    else
-                    {
+                    } else {
                         reward_valence = 0.04 + (dist(rng) * 0.04);
                     }
                 }
 
-                // Streak punishment (same for both)
+                // Streak punishment
                 static int explore_streak = 0;
-                if (action.name == "explore")
-                {
+                if (action.name == "explore") {
                     explore_streak++;
-                    if (explore_streak >= cfg.max_explore_streak && dist(rng) < cfg.streak_punish_prob)
-                    {
+                    if (explore_streak >= cfg.max_explore_streak && dist(rng) < cfg.streak_punish_prob) {
                         reward_valence += cfg.streak_punish_amount;
                     }
-                }
-                else
-                {
+                } else {
                     explore_streak = 0;
                 }
 
                 agent.receive_reward(reward_valence, reward_surprise);
                 agent.learn();
 
-                // Logging...
+                // Console logging
                 std::cout << "Step " << step << " | Action: " << action.name
                           << " | Reward: " << reward_valence << "\n";
 
@@ -156,37 +136,27 @@ int main()
                 std::cout << "Proto-belief | Top Action: " << (e >= n ? "explore" : "noop")
                           << " | Values: (noop=" << n << ", explore=" << e << ")\n";
 
-                // Inside step loop, after agent.learn()
-                static std::ofstream emo_csv("emotion_trajectory.csv", std::ios::app);
-                if (!emo_csv.is_open())
-                    emo_csv.open("emotion_trajectory.csv");
-                if (life == 0 && ep == 0 && step == 0)
-                {
-                    emo_csv << "Lifetime,Episode,Step,Valence,Fear,Dominance,ExploreBias\n";
-                }
+                // **CSV logging** — every step
                 emo_csv << (life + 1) << "," << ep << "," << step << ","
                         << agent.get_emotion().valence << ","
                         << agent.get_emotion().fear << ","
                         << agent.get_emotion().dominance << ","
                         << agent.get_emotion().explore_bias << "\n";
-                emo_csv.flush();
             }
 
             agent.prune_beliefs(0.40);
         }
 
-        // Save at end of lifetime
-        try
-        {
+        // Save state
+        try {
             agent.save(save_file);
             std::cout << "Saved state after lifetime " << (life + 1) << "\n";
-        }
-        catch (const std::exception &e)
-        {
+        } catch (const std::exception& e) {
             std::cout << "Save failed: " << e.what() << "\n";
         }
     }
 
-    std::cout << "\nAll lifetimes completed.\n";
+    emo_csv.close();
+    std::cout << "\nAll lifetimes completed. Emotion data saved to emotion_trajectory.csv\n";
     return 0;
 }
