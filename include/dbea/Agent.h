@@ -54,6 +54,7 @@ private:
     double last_reward = 0.0;
     Action last_action;  // Declared here
     PatternSignature last_perception;
+    double last_predicted_reward = 0.0;  // NEW
 };
 
 } // namespace dbea

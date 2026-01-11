@@ -12,6 +12,8 @@ struct BeliefNode {
     double confidence;
     double activation;
     int evidence_count = 1;  // NEW: For weighted merging
+    double last_predicted_reward = 0.0;   // NEW
+    double prediction_error = 0.0;        // NEW (smoothed)
 
     std::unordered_map<int, double> action_values;
 

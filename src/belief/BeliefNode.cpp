@@ -8,9 +8,11 @@ namespace dbea {
 BeliefNode::BeliefNode(const std::string& id_, const PatternSignature& proto)
     : id(id_),
       prototype(proto),
-      confidence(id_ == "proto-belief" ? 0.3 : 0.5),  // proto starts weaker
+      confidence(id_ == "proto-belief" ? 0.3 : 0.5),
       activation(0.0),
-      evidence_count(1)  // NEW: Initialize evidence count
+      evidence_count(1),
+      last_predicted_reward(0.0),     // NEW
+      prediction_error(0.0)           // NEW
 {
 }
 
@@ -25,8 +27,7 @@ double BeliefNode::match_score(const PatternSignature& input) const {
     for (size_t i = 0; i < input.features.size(); ++i) {
         double diff = input.features[i] - prototype.features[i];
         sum_sq_diff += diff * diff;
-        // Approximate max possible difference per dimension
-        max_range += 1.0;  // conservative, since values ~0-1
+        max_range += 1.0;
     }
 
     double dist = std::sqrt(sum_sq_diff);
@@ -37,7 +38,7 @@ double BeliefNode::match_score(const PatternSignature& input) const {
 
 void BeliefNode::reinforce(double amount) {
     confidence = std::min(1.0, confidence + amount);
-    evidence_count++;  // NEW: Increment evidence on reinforce
+    evidence_count++;
 }
 
 void BeliefNode::decay(double amount) {
