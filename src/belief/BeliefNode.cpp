@@ -29,8 +29,9 @@ double BeliefNode::predict_action_value(int action_id) const {
     return 0.0;
 }
 
-
-void BeliefNode::learn_action_value(int action_id, double reward, double learning_rate) {
+void BeliefNode::learn_action_value(int action_id,
+                                   double reward,
+                                   double learning_rate) {
     double old_value = action_values[action_id];
     double new_value = old_value + learning_rate * (reward - old_value);
     action_values[action_id] = new_value;

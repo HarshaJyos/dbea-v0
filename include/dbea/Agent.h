@@ -33,6 +33,9 @@ private:
     
     // Store the last reward received
     double last_reward = 0.0;
+
+    // ✅ NEW: store last chosen action
+    Action last_action;
 };
 
 } // namespace dbea
