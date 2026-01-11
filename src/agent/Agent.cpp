@@ -46,7 +46,7 @@ namespace dbea
                       << ") → threshold=" << threshold << "\n";
         }
 
-        auto belief = belief_graph.maybe_create_belief(blended, threshold); // FIXED: use blended
+        auto belief = belief_graph.maybe_create_belief(blended, threshold);
 
         if (belief->action_values.empty())
         {
@@ -69,7 +69,7 @@ namespace dbea
             total_activation += belief->activation;
         }
 
-        double predicted = 0.0;
+        // Base Q-values from beliefs
         for (const auto &belief : belief_graph.nodes)
         {
             for (const auto &action : available_actions)
@@ -79,6 +79,14 @@ namespace dbea
             }
         }
 
+        // NEW: Apply emotional bias to action scores
+        double emotional_bonus = emotion.explore_bias * 0.25; // was 0.15
+        double fear_penalty = emotion.fear * 0.25;
+        action_scores[1] -= fear_penalty;    // extra penalty to explore when afraid
+        action_scores[1] += emotional_bonus; // boost explore (id=1)
+        action_scores[0] -= emotional_bonus; // reduce noop (id=0)
+
+        // Select best action
         Action best = available_actions[0];
         double best_score = -1e9;
         for (const auto &action : available_actions)
@@ -93,7 +101,7 @@ namespace dbea
 
         last_action = best;
 
-        // FIXED: Predict for the CHOSEN action (after selection)
+        // Predict reward for chosen action (for next error calculation)
         double chosen_pred = 0.0;
         for (const auto &belief : belief_graph.nodes)
         {
@@ -107,7 +115,7 @@ namespace dbea
 
     void Agent::receive_reward(double valence, double surprise)
     {
-        emotion.update(valence, surprise, 0.0, config); // safe default avg_error=0
+        emotion.update(valence, surprise, 0.0, config); // avg_error comes later in learn()
         last_reward = valence;
     }
 
@@ -115,6 +123,10 @@ namespace dbea
     {
         double total_error = 0.0;
         int count = 0;
+
+        // NEW: Emotional modulation factors
+        double reinforcement_mod = 1.0 + 0.5 * emotion.valence + 0.3 * emotion.arousal;
+        double fear_decay_boost = 1.0 + 0.2 * emotion.fear; // fear → stronger decay
 
         for (auto &belief : belief_graph.nodes)
         {
@@ -124,25 +136,27 @@ namespace dbea
 
             if (credit > 0.0)
             {
-                belief->reinforce(config.belief_learning_rate * credit);
+                // Positive credit → reinforce stronger when valence/arousal high
+                belief->reinforce(config.belief_learning_rate * credit * reinforcement_mod);
             }
             else
             {
-                belief->decay(config.belief_decay_rate);
+                // Negative → decay stronger when fear is high
+                belief->decay(config.belief_decay_rate * fear_decay_boost);
             }
 
             // Update prediction error
             double error = std::abs(last_reward - last_predicted_reward);
-            belief->prediction_error = 0.7 * belief->prediction_error + 0.3 * error; // EMA
+            belief->prediction_error = 0.7 * belief->prediction_error + 0.3 * error;
             total_error += belief->prediction_error * belief->activation;
             count++;
         }
 
         double avg_error = (count > 0) ? total_error / count : 0.0;
 
-        // FIXED: Call 3-param update AFTER computing avg_error
-        // In learn():
-        emotion.update(last_reward, 0.05, avg_error, config); // ← Add config
+        // Update emotions with computed avg_error
+        emotion.update(last_reward, 0.05, avg_error, config);
+
         if (!belief_graph.nodes.empty())
         {
             auto &proto = *belief_graph.nodes.front();
@@ -152,11 +166,9 @@ namespace dbea
             }
         }
 
-        // FIXED: Remove duplicate
         belief_graph.merge_beliefs(config.merge_threshold);
 
-        // Debug output
-        // Debug output (once per step)
+        // Debug output - cleaner version
         std::cout << "[DBEA] === Step Summary ===\n";
         for (const auto &belief : belief_graph.nodes)
         {
@@ -170,7 +182,10 @@ namespace dbea
             std::cout << std::endl;
         }
         std::cout << "[DBEA] Avg prediction error: " << avg_error
-                  << " | Curiosity: " << emotion.curiosity << "\n"
+                  << " | Curiosity: " << emotion.curiosity
+                  << " | Valence: " << emotion.valence
+                  << " | Fear: " << emotion.fear
+                  << " | Explore bias: " << emotion.explore_bias << "\n"
                   << "[DBEA] Belief count: " << belief_graph.nodes.size() << "\n\n";
     }
 
