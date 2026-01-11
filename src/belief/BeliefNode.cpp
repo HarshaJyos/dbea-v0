@@ -1,16 +1,34 @@
 #include "dbea/BeliefNode.h"
 #include <cmath>
 #include <algorithm>
+#include <string>
 
 namespace dbea {
 
+BeliefNode::BeliefNode(const std::string& id_, const PatternSignature& proto)
+    : id(id_),
+      prototype(proto),
+      confidence(id_ == "proto-belief" ? 0.3 : 0.5),  // proto starts weaker
+      activation(0.0)
+{
+}
+
 double BeliefNode::match_score(const PatternSignature& input) const {
-    double score = 0.0;
-    size_t n = std::min(input.features.size(), prototype.features.size());
-    for (size_t i = 0; i < n; ++i) {
-        score += 1.0 - std::abs(input.features[i] - prototype.features[i]);
+    if (input.features.size() != prototype.features.size() || input.features.empty()) {
+        return 0.0;
     }
-    return score / (n + 1e-6);
+
+    double sum_sq_diff = 0.0;
+    for (size_t i = 0; i < input.features.size(); ++i) {
+        double diff = input.features[i] - prototype.features[i];
+        sum_sq_diff += diff * diff;
+    }
+
+    double dist = std::sqrt(sum_sq_diff);
+    // Very forgiving: max reasonable distance ~0.5 in this range
+    double similarity = 1.0 - std::min(1.0, dist / 0.5);
+
+    return similarity;
 }
 
 void BeliefNode::reinforce(double amount) {

@@ -19,7 +19,7 @@ public:
     maybe_create_belief(const PatternSignature& input,
                         double activation_threshold);
 
-    void prune(double threshold = 0.1);
+    void prune(double threshold = 0.25);  // Changed default here
 };
 
 } // namespace dbea

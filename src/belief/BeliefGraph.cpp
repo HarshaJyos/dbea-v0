@@ -5,11 +5,14 @@
 
 namespace dbea {
 
+static int NEXT_BELIEF_ID = 0;  // monotonic ID counter
+
 void BeliefGraph::add_belief(const std::shared_ptr<BeliefNode>& node) {
     nodes.push_back(node);
 }
 
-std::shared_ptr<BeliefNode> BeliefGraph::compete(const PatternSignature& input) {
+std::shared_ptr<BeliefNode>
+BeliefGraph::compete(const PatternSignature& input) {
     double best_score = -1.0;
     std::shared_ptr<BeliefNode> winner = nullptr;
 
@@ -23,19 +26,11 @@ std::shared_ptr<BeliefNode> BeliefGraph::compete(const PatternSignature& input) 
         }
     }
 
-    // Reinforce winner, decay others
-    for (auto& node : nodes) {
-        if (node == winner) {
-            node->reinforce(0.05);
-        } else {
-            node->decay(0.02);
-        }
-    }
-
     return winner;
 }
 
-std::shared_ptr<BeliefNode> BeliefGraph::maybe_create_belief(
+std::shared_ptr<BeliefNode>
+BeliefGraph::maybe_create_belief(
     const PatternSignature& input,
     double activation_threshold
 ) {
@@ -43,13 +38,14 @@ std::shared_ptr<BeliefNode> BeliefGraph::maybe_create_belief(
 
     if (!winner || winner->activation < activation_threshold) {
         auto newborn = std::make_shared<BeliefNode>(
-            "belief_" + std::to_string(nodes.size()),
+            "belief_" + std::to_string(NEXT_BELIEF_ID++),
             input
         );
 
         nodes.push_back(newborn);
 
-        std::cout << "[DBEA] New belief created: " << newborn->id << std::endl;
+        std::cout << "[DBEA] New belief created: "
+                  << newborn->id << std::endl;
 
         return newborn;
     }
@@ -57,14 +53,12 @@ std::shared_ptr<BeliefNode> BeliefGraph::maybe_create_belief(
     return winner;
 }
 
-void BeliefGraph::prune(double threshold) {
+void BeliefGraph::prune(double threshold) {  // NO default value here!
     nodes.erase(
-        std::remove_if(
-            nodes.begin(), nodes.end(),
+        std::remove_if(nodes.begin(), nodes.end(),
             [threshold](const std::shared_ptr<BeliefNode>& n) {
                 return n->confidence < threshold;
-            }
-        ),
+            }),
         nodes.end()
     );
 }

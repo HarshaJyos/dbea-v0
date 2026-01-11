@@ -1,5 +1,4 @@
 #include "dbea/Agent.h"
-#include <memory>
 #include <unordered_map>
 #include <iostream>
 
@@ -20,13 +19,23 @@ namespace dbea
 
         belief_graph.add_belief(proto);
 
-        // Initialize last_action safely
-        last_action = available_actions[0];
+        last_action = available_actions[0]; // Safe init
     }
 
     void Agent::perceive(const PatternSignature &input)
     {
-        auto belief = belief_graph.maybe_create_belief(input, 0.8);
+        PatternSignature blended = input;
+        if (!last_perception.features.empty())
+        {
+            for (size_t i = 0; i < blended.features.size(); ++i)
+            {
+                blended.features[i] = 0.95 * blended.features[i] + 0.05 * last_perception.features[i];
+                // ^^^ much stronger persistence
+            }
+        }
+        last_perception = input; // still store raw for next blend
+        // Raised threshold to 0.95 to reduce excessive belief creation
+        auto belief = belief_graph.maybe_create_belief(input, 0.75);
 
         if (belief->action_values.empty())
         {
@@ -47,11 +56,9 @@ namespace dbea
         {
             for (const auto &action : available_actions)
             {
-                double vote =
+                action_scores[action.id] +=
                     belief->activation *
                     belief->predict_action_value(action.id);
-
-                action_scores[action.id] += vote;
             }
         }
 
@@ -68,7 +75,6 @@ namespace dbea
             }
         }
 
-        // ✅ STORE LAST ACTION
         last_action = best;
         return best;
     }
@@ -83,33 +89,40 @@ namespace dbea
     {
         for (auto &belief : belief_graph.nodes)
         {
-            double scaled_reward = belief->activation * last_reward;
-
-            // ✅ Learn ONLY the chosen action
-            belief->learn_action_value(
-                last_action.id,
-                scaled_reward,
-                config.learning_rate);
-        }
-
-        for (const auto &belief : belief_graph.nodes)
-        {
-            std::cout << "[DBEA] " << belief->id << " action values: ";
-            for (const auto &[action_id, value] : belief->action_values)
-            {
-                std::cout << "(" << action_id << ": " << value << ") ";
-            }
-            std::cout << std::endl;
-        }
-        for (auto &belief : belief_graph.nodes)
-        {
             double credit = belief->activation * last_reward;
 
-            // Strengthen belief confidence
-            belief->reinforce(config.belief_learning_rate * credit);
+            // Action learning (ONLY chosen action)
+            belief->learn_action_value(
+                last_action.id,
+                credit,
+                config.learning_rate);
 
-            // Optional decay for inactive beliefs
-            belief->decay(config.belief_decay_rate);
+            // Belief confidence learning (no duplicate calls)
+            if (credit > 0.0)
+                belief->reinforce(config.belief_learning_rate * credit);
+            else
+                belief->decay(config.belief_decay_rate);
+        }
+        if (!belief_graph.nodes.empty())
+        {
+            auto &proto = *belief_graph.nodes.front();
+            if (proto.id == "proto-belief")
+            {
+                proto.decay(0.04); // extra decay for proto so it weakens over time
+            }
+        }
+
+        // Debug output (with confidence)
+        for (const auto &belief : belief_graph.nodes)
+        {
+            std::cout << "[DBEA] " << belief->id
+                      << " conf=" << belief->confidence
+                      << " values: ";
+            for (const auto &[id, v] : belief->action_values)
+            {
+                std::cout << "(" << id << ":" << v << ") ";
+            }
+            std::cout << std::endl;
         }
     }
 
