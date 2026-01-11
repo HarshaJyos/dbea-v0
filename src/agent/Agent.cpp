@@ -5,7 +5,11 @@
 namespace dbea
 {
 
-    Agent::Agent(const Config &cfg) : config(cfg), last_reward(0.0)
+    Agent::Agent(const Config &cfg)
+        : config(cfg),
+          belief_graph(cfg), // ← NEW: pass config
+          last_reward(0.0)
+
     {
         available_actions.push_back(Action{0, "noop"});
         available_actions.push_back(Action{1, "explore"});

@@ -34,6 +34,7 @@ int main()
     for (int ep = 0; ep < episodes; ++ep)
     {
         std::cout << "\n=== Episode " << ep << " ===" << std::endl;
+        cfg.merge_threshold = 0.95 - 0.01 * ep;  // tighten over time (0.95 → 0.86)
 
         for (int step = 0; step < steps_per_episode; ++step)
         {
