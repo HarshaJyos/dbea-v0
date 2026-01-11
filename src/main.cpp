@@ -5,8 +5,22 @@
 #include <fstream>
 #include <random>
 #include <iomanip>
+#include <stdexcept>
 
 using namespace dbea;
+
+// Helper: Slowly evolve baseline personality across lifetimes
+// Helper: Slowly evolve baseline personality across lifetimes
+void evolve_personality_baseline(EmotionState &emotion, std::mt19937 &rng)
+{
+    std::normal_distribution<double> noise(0.0, 0.015);
+    emotion.dominance = std::clamp(emotion.dominance * 0.985 + noise(rng), 0.0, 1.0);
+    emotion.fear = std::clamp(emotion.fear * 0.97 + noise(rng), 0.0, 1.0);
+    // Reset transient emotions each lifetime
+    emotion.valence = 0.0;
+    emotion.curiosity = 0.5;
+    emotion.explore_bias = 0.0;
+}
 
 int main()
 {
@@ -15,122 +29,164 @@ int main()
     cfg.exploration_rate = 0.8;
     cfg.learning_rate = 0.1;
 
-    Agent agent(cfg);
+    std::mt19937 rng(42);
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    std::cout << "DBEA v0 learning simulation running." << std::endl;
-
-    const int episodes = 10;
+    const int num_lifetimes = 6; // 6 lives total
+    const int episodes_per_lifetime = 10;
     const int steps_per_episode = 5;
 
-    // Random generator for perception noise
-    std::mt19937 rng(42);
-    std::uniform_real_distribution<double> noise(-0.05, 0.05);
+    std::string save_file = "agent_lifetime.json";
 
-    // Open CSV for recording proto-belief action values
-    std::ofstream csv("learning_curve.csv");
-    csv << "Episode,Step,Action_noop,Action_explore\n";
-    csv << std::fixed << std::setprecision(6);
+    std::cout << "DBEA v0 - Lifelong Developmental Simulation (6 lifetimes)\n";
 
-    for (int ep = 0; ep < episodes; ++ep)
+    Agent agent(cfg);
+
+    for (int life = 0; life < num_lifetimes; ++life)
     {
-        std::cout << "\n=== Episode " << ep << " ===" << std::endl;
-        cfg.merge_threshold = 0.95 - 0.01 * ep; // tighten over time (0.95 → 0.86)
+        std::cout << "\n┌────────────────────────────────────┐\n"
+                  << "│ Starting Lifetime " << (life + 1) << " / " << num_lifetimes << "   ";
 
-        for (int step = 0; step < steps_per_episode; ++step)
+        bool is_trauma = (life == 2);
+        if (is_trauma)
         {
-            // Generate perception with small variation
-            std::uniform_real_distribution<double> small_noise(-0.01, 0.01);
-            // Replace continuous perception with discrete state
-            int discrete_state = step % 4; // 0,1,2,3 — cycles every 4 steps
-            PatternSignature perception({
-                static_cast<double>(discrete_state), // main state feature
-                0.3 + small_noise(rng)               // tiny noise on secondary
-            });
+            std::cout << " [TRAUMA PHASE] ";
+        }
+        std::cout << "│\n└────────────────────────────────────┘\n";
 
-            // Agent perceives
-            agent.perceive(perception);
-
-            // Decide action
-            Action action = agent.decide();
-
-            // Dynamic reward: explore gets higher reward on even steps
-            // Inside step loop:
-            std::uniform_real_distribution<double> dist(0.0, 1.0);
-            double r = dist(rng);
-
-            double reward_valence;
-            double reward_surprise = 0.05 + (dist(rng) * 0.1);
-
-            if (r < 0.08)
-            { // ~8% chance negative
-                reward_valence = -0.15 - (dist(rng) * 0.1);
-                reward_surprise += 0.4;
-            }
-            else if (r < 0.38)
-            { // 30% good
-                reward_valence = 0.15 + (dist(rng) * 0.1);
-            }
-            else
-            { // ~62% small positive
-                reward_valence = 0.04 + (dist(rng) * 0.04);
-            }
-
-            // Optional streak penalty
-            static int explore_streak = 0;
-            if (action.name == "explore")
+        // Load from previous life (skip first)
+        if (life > 0)
+        {
+            try
             {
-                explore_streak++;
-                if (explore_streak >= 4 && dist(rng) < 0.3)
-                {
-                    reward_valence -= 0.2;
-                }
+                agent.load(save_file);
+                std::cout << "Loaded state from previous lifetime.\n";
+
+                // Evolve baseline personality (using getter + setter)
+                EmotionState current_emotion = agent.get_emotion();
+                evolve_personality_baseline(current_emotion, rng);
+                agent.set_emotion(current_emotion);
+
+                std::cout << "Current baseline: Dominance=" << current_emotion.dominance
+                          << " | Fear=" << current_emotion.fear << "\n";
             }
-            else
+            catch (const std::exception &e)
             {
-                explore_streak = 0;
+                std::cout << "No previous state or load failed: " << e.what() << "\n";
             }
-
-            // Provide reward
-            agent.receive_reward(reward_valence, reward_surprise);
-
-            // Update beliefs
-            agent.learn();
-
-            // Log to console
-            std::cout << "Step " << step
-                      << " | Action: " << action.name
-                      << " | Reward: " << reward_valence << std::endl;
-
-            // Log proto-belief action values to CSV using getter
-            auto [noop_val, explore_val] = agent.get_proto_action_values();
-            csv << ep << "," << step << "," << noop_val << "," << explore_val << "\n"; // FIXED: Actual write to CSV
-
-            std::string top_action = (explore_val >= noop_val) ? "explore" : "noop";
-
-            std::cout << "Proto-belief"
-                      << " | Top Action: " << top_action
-                      << " | Values: (noop=" << noop_val
-                      << ", explore=" << explore_val << ")\n";
         }
 
-        // Prune once after full episode
-        agent.prune_beliefs(0.40); // kill anything below 40% confidence
-
-        // Episode summary: top action per belief
-        std::cout << "\n[Episode " << ep << " Summary]\n";
-        auto all_values = agent.get_all_belief_action_values();
-        for (size_t i = 0; i < all_values.size(); ++i)
+        for (int ep = 0; ep < episodes_per_lifetime; ++ep)
         {
-            auto [noop_val, explore_val] = all_values[i];
-            std::string top = (explore_val >= noop_val) ? "explore" : "noop";
-            std::cout << "Belief " << i
-                      << " | Top Action: " << top
-                      << " | Values: (noop=" << noop_val
-                      << ", explore=" << explore_val << ")\n";
+            std::cout << "\n=== Episode " << ep << " ===\n";
+            cfg.merge_threshold = 0.95 - 0.01 * ep;
+
+            for (int step = 0; step < steps_per_episode; ++step)
+            {
+                // Perception
+                int discrete_state = step % 4;
+                std::uniform_real_distribution<double> small_noise(-0.01, 0.01);
+                PatternSignature perception({static_cast<double>(discrete_state), 0.3 + small_noise(rng)});
+                agent.perceive(perception);
+
+                Action action = agent.decide();
+
+                // Reward logic (trauma = much harsher negatives)
+                double r = dist(rng);
+                double reward_valence, reward_surprise = 0.05 + (dist(rng) * 0.1);
+
+                if (is_trauma)
+                {
+                    // Trauma phase: 30% chance severe negative, higher punishment
+                    if (r < 0.30)
+                    {
+                        reward_valence = -0.35 - (dist(rng) * 0.15); // -0.35 to -0.5
+                        reward_surprise += 0.6;
+                    }
+                    else if (r < 0.50)
+                    {
+                        reward_valence = 0.08 + (dist(rng) * 0.08);
+                    }
+                    else
+                    {
+                        reward_valence = 0.02 + (dist(rng) * 0.03);
+                    }
+                }
+                else
+                {
+                    // Normal phase
+                    if (r < 0.08)
+                    {
+                        reward_valence = -0.15 - (dist(rng) * 0.1);
+                        reward_surprise += 0.4;
+                    }
+                    else if (r < 0.38)
+                    {
+                        reward_valence = 0.15 + (dist(rng) * 0.1);
+                    }
+                    else
+                    {
+                        reward_valence = 0.04 + (dist(rng) * 0.04);
+                    }
+                }
+
+                // Streak punishment (same for both)
+                static int explore_streak = 0;
+                if (action.name == "explore")
+                {
+                    explore_streak++;
+                    if (explore_streak >= cfg.max_explore_streak && dist(rng) < cfg.streak_punish_prob)
+                    {
+                        reward_valence += cfg.streak_punish_amount;
+                    }
+                }
+                else
+                {
+                    explore_streak = 0;
+                }
+
+                agent.receive_reward(reward_valence, reward_surprise);
+                agent.learn();
+
+                // Logging...
+                std::cout << "Step " << step << " | Action: " << action.name
+                          << " | Reward: " << reward_valence << "\n";
+
+                auto [n, e] = agent.get_proto_action_values();
+                std::cout << "Proto-belief | Top Action: " << (e >= n ? "explore" : "noop")
+                          << " | Values: (noop=" << n << ", explore=" << e << ")\n";
+
+                // Inside step loop, after agent.learn()
+                static std::ofstream emo_csv("emotion_trajectory.csv", std::ios::app);
+                if (!emo_csv.is_open())
+                    emo_csv.open("emotion_trajectory.csv");
+                if (life == 0 && ep == 0 && step == 0)
+                {
+                    emo_csv << "Lifetime,Episode,Step,Valence,Fear,Dominance,ExploreBias\n";
+                }
+                emo_csv << (life + 1) << "," << ep << "," << step << ","
+                        << agent.get_emotion().valence << ","
+                        << agent.get_emotion().fear << ","
+                        << agent.get_emotion().dominance << ","
+                        << agent.get_emotion().explore_bias << "\n";
+                emo_csv.flush();
+            }
+
+            agent.prune_beliefs(0.40);
+        }
+
+        // Save at end of lifetime
+        try
+        {
+            agent.save(save_file);
+            std::cout << "Saved state after lifetime " << (life + 1) << "\n";
+        }
+        catch (const std::exception &e)
+        {
+            std::cout << "Save failed: " << e.what() << "\n";
         }
     }
 
-    csv.close();
-    std::cout << "\nDBEA shutdown clean. CSV saved as learning_curve.csv" << std::endl;
+    std::cout << "\nAll lifetimes completed.\n";
     return 0;
 }

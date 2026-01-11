@@ -1,7 +1,8 @@
 {
 	"InstallScripts" : 
 	[
-		"C:/dbea/build/cmake_install.cmake"
+		"C:/dbea/build/cmake_install.cmake",
+		"C:/dbea/build/_deps/json-build/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

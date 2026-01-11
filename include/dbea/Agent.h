@@ -7,6 +7,9 @@
 #include "dbea/Config.h"
 #include <vector>
 #include <utility>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 namespace dbea {
 
@@ -18,32 +21,20 @@ public:
     void receive_reward(double reward_valence, double reward_surprise);
     void learn();
 
-    // NEW: Public method to prune beliefs safely
-    void prune_beliefs(double threshold = 0.40) {
-        belief_graph.prune(threshold);
-    }
+    // Public methods (make prune public, not inline)
+    void prune_beliefs(double threshold = 0.40);
+    std::pair<double, double> get_proto_action_values() const;
+    size_t get_belief_count() const;
+    std::vector<std::pair<double, double>> get_all_belief_action_values() const;
 
-    std::pair<double, double> get_proto_action_values() const {
-        if (belief_graph.nodes.empty()) return {0.0, 0.0};
-        const auto& proto = belief_graph.nodes.front();
-        return {proto->predict_action_value(0),
-                proto->predict_action_value(1)};
-    }
+    const EmotionState& get_emotion() const { return emotion; }
+    void set_emotion(const EmotionState& new_emotion) { emotion = new_emotion; }
 
-    size_t get_belief_count() const {
-        return belief_graph.nodes.size();
-    }
-    
-    std::vector<std::pair<double, double>> get_all_belief_action_values() const {
-        std::vector<std::pair<double, double>> values;
-        for (const auto& belief : belief_graph.nodes) {
-            values.emplace_back(
-                belief->predict_action_value(0),
-                belief->predict_action_value(1)
-            );
-        }
-        return values;
-    }
+    // Serialization
+    json to_json() const;
+    void from_json(const json& j);
+    void save(const std::string& filename) const;
+    void load(const std::string& filename);
 
 private:
     Config config;
@@ -52,9 +43,9 @@ private:
     std::vector<Action> available_actions;
 
     double last_reward = 0.0;
-    Action last_action;  // Declared here
+    Action last_action;
     PatternSignature last_perception;
-    double last_predicted_reward = 0.0;  // NEW
+    double last_predicted_reward = 0.0;
 };
 
 } // namespace dbea
