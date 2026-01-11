@@ -4,7 +4,7 @@
 struct EmotionState {
     double valence = 0.0;
     double arousal = 0.0;
-    double dominance = 0.0;
+    double dominance = 0.5;
     double curiosity = 0.5;
     double fear = 0.0;
     double explore_bias = 0.0;   // 0.0 neutral, +1.0 strong explore, -1.0 strong noop

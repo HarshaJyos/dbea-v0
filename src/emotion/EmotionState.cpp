@@ -5,17 +5,20 @@ EmotionState::EmotionState()
     : valence(0.0), arousal(0.0), dominance(0.0), curiosity(0.5), fear(0.0) {}
 
 void EmotionState::update(double reward_valence, double reward_surprise, double avg_error,
-                          const Config &config)
-{
+                          const Config& config) {
     valence += 0.1 * reward_valence;
     arousal += 0.05 * reward_surprise;
 
     curiosity = std::clamp(curiosity + config.curiosity_boost * avg_error - config.curiosity_decay,
                            0.0, 1.0);
 
-    // NEW: Fear from negative surprise / uncertainty
-    fear = std::clamp(fear + 0.3 * (reward_surprise > 0.3 ? 0.15 : 0.25 * avg_error) - 0.015, 0.0, 1.0);
-    // NEW: Explore bias = curiosity - fear + valence influence
+    fear = std::clamp(fear + 0.3 * (reward_surprise > 0.3 ? 0.15 : 0.25 * avg_error) - 0.008, 0.0, 1.0);
+
+    // NEW: Dominance grows with prediction success (low error), decays with failure
+    double dominance_change = 0.12 * (1.0 - avg_error) - 0.04 * avg_error;
+    dominance += dominance_change;
+    dominance = std::clamp(dominance, 0.0, 1.0);
+
     explore_bias = (curiosity - fear) + 0.3 * valence;
     explore_bias = std::clamp(explore_bias, -1.0, 1.0);
 

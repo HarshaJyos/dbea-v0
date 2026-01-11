@@ -38,15 +38,23 @@ namespace dbea
         }
         last_perception = input; // store raw
 
-        double threshold = 0.93;
+        // Base threshold
+        double base_threshold = 0.93;
+
+        // Curiosity effect
         if (emotion.curiosity > config.curiosity_threshold)
         {
-            threshold -= config.curiosity_threshold_drop * emotion.curiosity;
+            base_threshold -= config.curiosity_threshold_drop * emotion.curiosity;
             std::cout << "[DBEA] Curiosity active (" << emotion.curiosity
-                      << ") → threshold=" << threshold << "\n";
+                      << ") → threshold=" << base_threshold << "\n";
         }
 
-        auto belief = belief_graph.maybe_create_belief(blended, threshold);
+        // NEW: Low dominance → lower threshold → easier to create new beliefs
+        double dominance_effect = 0.12 * (1.0 - emotion.dominance); // 0 → 0.12 range
+        double creation_threshold = base_threshold - dominance_effect;
+
+        // Create or match belief using the final threshold
+        auto belief = belief_graph.maybe_create_belief(blended, creation_threshold);
 
         if (belief->action_values.empty())
         {
@@ -165,9 +173,9 @@ namespace dbea
                 proto.decay(0.04);
             }
         }
+        double dynamic_merge_threshold = config.merge_threshold + 0.08 * (1.0 - emotion.dominance);
 
-        belief_graph.merge_beliefs(config.merge_threshold);
-
+        belief_graph.merge_beliefs(dynamic_merge_threshold);
         // Debug output - cleaner version
         std::cout << "[DBEA] === Step Summary ===\n";
         for (const auto &belief : belief_graph.nodes)
@@ -185,6 +193,7 @@ namespace dbea
                   << " | Curiosity: " << emotion.curiosity
                   << " | Valence: " << emotion.valence
                   << " | Fear: " << emotion.fear
+                  << " | Dominance: " << emotion.dominance
                   << " | Explore bias: " << emotion.explore_bias << "\n"
                   << "[DBEA] Belief count: " << belief_graph.nodes.size() << "\n\n";
     }
