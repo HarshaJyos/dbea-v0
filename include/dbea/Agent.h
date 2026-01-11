@@ -52,7 +52,7 @@ private:
     std::vector<Action> available_actions;
 
     double last_reward = 0.0;
-    Action last_action;
+    Action last_action;  // Declared here
     PatternSignature last_perception;
 };
 

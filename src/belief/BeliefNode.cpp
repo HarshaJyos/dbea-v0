@@ -9,7 +9,8 @@ BeliefNode::BeliefNode(const std::string& id_, const PatternSignature& proto)
     : id(id_),
       prototype(proto),
       confidence(id_ == "proto-belief" ? 0.3 : 0.5),  // proto starts weaker
-      activation(0.0)
+      activation(0.0),
+      evidence_count(1)  // NEW: Initialize evidence count
 {
 }
 
@@ -19,20 +20,24 @@ double BeliefNode::match_score(const PatternSignature& input) const {
     }
 
     double sum_sq_diff = 0.0;
+    double max_range = 0.0;
+
     for (size_t i = 0; i < input.features.size(); ++i) {
         double diff = input.features[i] - prototype.features[i];
         sum_sq_diff += diff * diff;
+        // Approximate max possible difference per dimension
+        max_range += 1.0;  // conservative, since values ~0-1
     }
 
     double dist = std::sqrt(sum_sq_diff);
-    // Very forgiving: max reasonable distance ~0.5 in this range
-    double similarity = 1.0 - std::min(1.0, dist / 0.5);
+    double normalized = 1.0 - (dist / std::sqrt(max_range));
 
-    return similarity;
+    return std::max(0.0, normalized);
 }
 
 void BeliefNode::reinforce(double amount) {
     confidence = std::min(1.0, confidence + amount);
+    evidence_count++;  // NEW: Increment evidence on reinforce
 }
 
 void BeliefNode::decay(double amount) {

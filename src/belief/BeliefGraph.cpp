@@ -53,7 +53,7 @@ BeliefGraph::maybe_create_belief(
     return winner;
 }
 
-void BeliefGraph::prune(double threshold) {  // NO default value here!
+void BeliefGraph::prune(double threshold) { // NO default value here!
     nodes.erase(
         std::remove_if(nodes.begin(), nodes.end(),
             [threshold](const std::shared_ptr<BeliefNode>& n) {
@@ -61,6 +61,46 @@ void BeliefGraph::prune(double threshold) {  // NO default value here!
             }),
         nodes.end()
     );
+}
+
+void BeliefGraph::merge_beliefs(double merge_threshold) {
+    for (size_t i = 0; i < nodes.size(); ++i) {
+        for (size_t j = i + 1; j < nodes.size(); ) {
+            double similarity = nodes[i]->match_score(nodes[j]->prototype);
+            if (similarity > merge_threshold) {
+                // Merge j into i (weighted by evidence_count)
+                int total_evidence = nodes[i]->evidence_count + nodes[j]->evidence_count;
+
+                // Average prototype
+                for (size_t k = 0; k < nodes[i]->prototype.features.size(); ++k) {
+                    nodes[i]->prototype.features[k] = 
+                        (nodes[i]->prototype.features[k] * nodes[i]->evidence_count +
+                         nodes[j]->prototype.features[k] * nodes[j]->evidence_count) / total_evidence;
+                }
+
+                // Weighted confidence
+                nodes[i]->confidence = 
+                    (nodes[i]->confidence * nodes[i]->evidence_count +
+                     nodes[j]->confidence * nodes[j]->evidence_count) / total_evidence;
+
+                // Average action values
+                for (const auto& [action_id, value] : nodes[j]->action_values) {
+                    double old_val = nodes[i]->action_values[action_id];
+                    nodes[i]->action_values[action_id] = 
+                        (old_val * nodes[i]->evidence_count + value * nodes[j]->evidence_count) / total_evidence;
+                }
+
+                // Update evidence count
+                nodes[i]->evidence_count = total_evidence;
+
+                // Remove j
+                nodes.erase(nodes.begin() + j);
+                std::cout << "[DBEA] Merged beliefs: " << nodes[i]->id << " absorbed another belief" << std::endl;
+            } else {
+                ++j;
+            }
+        }
+    }
 }
 
 } // namespace dbea

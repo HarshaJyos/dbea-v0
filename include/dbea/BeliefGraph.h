@@ -19,7 +19,9 @@ public:
     maybe_create_belief(const PatternSignature& input,
                         double activation_threshold);
 
-    void prune(double threshold = 0.25);  // Changed default here
+    void prune(double threshold = 0.25);
+
+    void merge_beliefs(double merge_threshold = 0.95);  // NEW: Method for merging similar beliefs
 };
 
 } // namespace dbea

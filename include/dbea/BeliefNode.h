@@ -11,6 +11,7 @@ struct BeliefNode {
     PatternSignature prototype;
     double confidence;
     double activation;
+    int evidence_count = 1;  // NEW: For weighted merging
 
     std::unordered_map<int, double> action_values;
 

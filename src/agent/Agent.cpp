@@ -35,7 +35,7 @@ namespace dbea
         }
         last_perception = input; // still store raw for next blend
         // Raised threshold to 0.95 to reduce excessive belief creation
-        auto belief = belief_graph.maybe_create_belief(input, 0.75);
+        auto belief = belief_graph.maybe_create_belief(input, 0.93);
 
         if (belief->action_values.empty())
         {
@@ -111,6 +111,9 @@ namespace dbea
                 proto.decay(0.04); // extra decay for proto so it weakens over time
             }
         }
+
+        // NEW: Merge beliefs after learning
+        belief_graph.merge_beliefs(config.merge_threshold);
 
         // Debug output (with confidence)
         for (const auto &belief : belief_graph.nodes)
