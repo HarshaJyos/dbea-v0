@@ -13,9 +13,9 @@ using namespace dbea;
 void evolve_personality_baseline(EmotionState& emotion, std::mt19937& rng) {
     std::normal_distribution<double> noise(0.0, 0.015);
     emotion.dominance = std::clamp(emotion.dominance * 0.985 + noise(rng), 0.0, 1.0);
-    emotion.fear      = std::clamp(emotion.fear      * 0.97  + noise(rng), 0.0, 1.0);
+    emotion.fear = std::clamp(emotion.fear * 0.97 + noise(rng), 0.0, 1.0);
     // Reset transient emotions each lifetime
-    emotion.valence   = 0.0;
+    emotion.valence = 0.0;
     emotion.curiosity = 0.5;
     emotion.explore_bias = 0.0;
 }
@@ -29,13 +29,13 @@ int main() {
     std::mt19937 rng(42);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    const int num_lifetimes = 6;
+    const int num_lifetimes = 7;  // Extended to 7 for therapy simulation
     const int episodes_per_lifetime = 10;
     const int steps_per_episode = 5;
 
     std::string save_file = "agent_lifetime.json";
 
-    std::cout << "DBEA v0 - Lifelong Developmental Simulation (6 lifetimes)\n";
+    std::cout << "DBEA v0 - Lifelong Developmental Simulation (7 lifetimes with Therapy)\n";
 
     Agent agent(cfg);
 
@@ -53,8 +53,11 @@ int main() {
                   << "│ Starting Lifetime " << (life + 1) << " / " << num_lifetimes << "   ";
 
         bool is_trauma = (life == 2);
+        bool is_therapy = (life == 6);  // New: Therapy phase in lifetime 7
         if (is_trauma) {
             std::cout << " [TRAUMA PHASE - intensified] ";
+        } else if (is_therapy) {
+            std::cout << " [THERAPY PHASE - healing] ";
         }
         std::cout << "│\n└────────────────────────────────────┘\n";
 
@@ -88,14 +91,21 @@ int main() {
 
                 Action action = agent.decide();
 
+                // **New: Trigger sensitivity** - Post-trauma, certain perceptions trigger fear
+                bool is_trigger = (life > 2 && discrete_state % 4 == 2);  // e.g., state 2 mimics trauma cue
+
                 // Reward logic
                 double r = dist(rng);
                 double reward_valence, reward_surprise = 0.05 + (dist(rng) * 0.1);
 
-                if (is_trauma) {
-                    // **Intensified trauma**: 40% chance severe negative (-0.45 to -0.65)
+                if (is_therapy) {
+                    // Therapy phase: Only positive rewards, low surprise for healing
+                    reward_valence = 0.1 + (dist(rng) * 0.2);  // +0.1 to +0.3
+                    reward_surprise = 0.05 + (dist(rng) * 0.05);  // Low surprise
+                } else if (is_trauma) {
+                    // Intensified trauma: 40% chance severe negative (-0.45 to -0.65)
                     if (r < 0.40) {
-                        reward_valence = -0.45 - (dist(rng) * 0.20);  // -0.45 to -0.65
+                        reward_valence = -0.45 - (dist(rng) * 0.20); // -0.45 to -0.65
                         reward_surprise += 0.7;
                     } else if (r < 0.60) {
                         reward_valence = 0.06 + (dist(rng) * 0.06);
@@ -112,6 +122,12 @@ int main() {
                     } else {
                         reward_valence = 0.04 + (dist(rng) * 0.04);
                     }
+                }
+
+                // Apply trigger sensitivity
+                if (is_trigger && agent.get_emotion().fear > 0.2) {
+                    reward_surprise += 0.3;  // Boost surprise to trigger flashback
+                    std::cout << "[DBEA] Trigger sensitivity activated! Boosting surprise.\n";
                 }
 
                 // Streak punishment
