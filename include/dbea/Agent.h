@@ -8,6 +8,7 @@
 #include <vector>
 #include <utility>
 #include <nlohmann/json.hpp>
+#include <random>           // ← ADD THIS LINE
 using json = nlohmann::json;
 namespace dbea
 {
@@ -44,5 +45,6 @@ namespace dbea
         Action last_action;
         PatternSignature last_perception;
         double last_predicted_reward = 0.0;
+        std::mt19937 rng;  // ← Add this random engine
     };
 } // namespace dbea

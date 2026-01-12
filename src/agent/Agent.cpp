@@ -4,11 +4,12 @@
 #include <cmath>     // for std::abs
 #include <fstream>   // NEW
 #include <stdexcept> // NEW for exceptions
+#include <random>    // for std::uniform_real_distribution
 namespace dbea
 {
     // In Agent::Agent(const Config &cfg)
     Agent::Agent(const Config &cfg)
-        : config(cfg), belief_graph(cfg), last_reward(0.0)
+        : config(cfg), belief_graph(cfg), last_reward(0.0), rng(std::random_device{}()) // ← Seed with random device (good entropy)
     {
         // 4 directional actions
         available_actions.emplace_back(0, "up");
@@ -48,7 +49,7 @@ namespace dbea
         }
         // NEW: Low dominance → lower threshold → easier to create new beliefs
         double dominance_effect = 0.12 * (1.0 - emotion.dominance); // 0 → 0.12 range
-        double creation_threshold = base_threshold - dominance_effect;
+        double creation_threshold = base_threshold - dominance_effect - 0.35 * emotion.curiosity;
         // Create or match belief using the final threshold
         auto belief = belief_graph.maybe_create_belief(blended, creation_threshold);
         if (belief->action_values.empty())
@@ -78,11 +79,28 @@ namespace dbea
             }
         }
         // NEW: Apply emotional bias to action scores
-        double emotional_bonus = emotion.explore_bias * 0.25; // was 0.15
-        double fear_penalty = emotion.fear * 0.25;
-        action_scores[1] -= fear_penalty;    // extra penalty to explore when afraid
-        action_scores[1] += emotional_bonus; // boost explore (id=1)
-        action_scores[0] -= emotional_bonus; // reduce noop (id=0)
+        // 1. Epsilon-greedy (very strong at beginning)
+        // In decide():
+        static double current_epsilon = config.exploration_rate;
+        current_epsilon = std::max(config.min_exploration,
+                                   current_epsilon * config.epsilon_decay);
+
+        static std::uniform_real_distribution<double> epsilon_dist(0.0, 1.0);
+        if (epsilon_dist(rng) < current_epsilon)
+        {
+            static std::uniform_int_distribution<size_t> action_dist(0, available_actions.size() - 1);
+            last_action = available_actions[action_dist(rng)];
+            std::cout << "[Exploration] Epsilon-greedy random action: " << last_action.name << "\n";
+            return last_action;
+        }
+
+        // 2. Emotional bias — even stronger now
+        double emotional_bonus = emotion.explore_bias * config.explore_bias_scale;
+        double fear_penalty = emotion.fear * 0.40;
+
+        action_scores[3] += emotional_bonus;       // right = explore direction (id 3)
+        action_scores[0] -= emotional_bonus * 0.7; // reduce up/noop when curious
+        action_scores[1] -= fear_penalty;          // down punished more when afraid
         // Select best action
         Action best = available_actions[0];
         double best_score = -1e9;
@@ -121,7 +139,7 @@ namespace dbea
         for (auto &belief : belief_graph.nodes)
         {
             double credit = belief->activation * last_reward;
-            belief->learn_action_value(last_action.id, credit, config.learning_rate);
+            belief->learn_action_value(last_action.id, credit, config.learning_rate, config.gamma);
             if (credit > 0.0)
             {
                 // Positive credit → reinforce stronger when valence/arousal high
