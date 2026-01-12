@@ -6,6 +6,7 @@
 #include <random>
 #include <iomanip>
 #include <stdexcept>
+#include <string>
 
 using namespace dbea;
 
@@ -15,7 +16,6 @@ void evolve_personality_baseline(EmotionState &emotion, std::mt19937 &rng)
     std::normal_distribution<double> noise(0.0, 0.015);
     emotion.dominance = std::clamp(emotion.dominance * 0.985 + noise(rng), 0.0, 1.0);
     emotion.fear = std::clamp(emotion.fear * 0.97 + noise(rng), 0.0, 1.0);
-    // Reset transient emotions each lifetime
     emotion.valence = 0.0;
     emotion.curiosity = 0.5;
     emotion.explore_bias = 0.0;
@@ -31,28 +31,35 @@ int main()
     std::mt19937 rng(42);
     std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-    const int num_lifetimes = 7; // Extended to 7 for therapy simulation
-    const int base_episodes_per_lifetime = 10;
-    const int therapy_episodes = 30;         // Longer for therapy
-    const double exposure_prob = 0.3;        // Chance to force exposure
-    const double therapy_trigger_prob = 0.2; // Reduced trigger probability in therapy
-    const int steps_per_episode = 5;         // ← Add this line!
+    const int num_lifetimes = 7;
+    const int base_episodes = 10;
+    const int therapy_episodes = 30;
+    const int post_recovery_episodes = 15; // Stress test + relapse prevention
+
+    const double exposure_prob = 0.3;
+    const double therapy_trigger_prob = 0.2;
+
+    // Post-recovery stress parameters
+    const double mild_negative_prob = 0.15;      // 15% chance of small setback
+    const double stress_trigger_prob = 0.35;     // higher trigger chance to test resilience
+    const double negative_valence_range = -0.25; // -0.0 to -0.25
 
     std::string save_file = "agent_lifetime.json";
 
-    std::cout << "DBEA v0 - Lifelong Developmental Simulation (7 lifetimes with Intensive Therapy)\n";
+    std::cout << "DBEA v0 - Lifelong Developmental Simulation + Post-Recovery Stress & Relapse Prevention\n";
 
     Agent agent(cfg);
 
-    // CSV logging setup
-    std::ofstream emo_csv("emotion_trajectory.csv", std::ios::trunc);
+    std::ofstream emo_csv("emotion_trajectory_full.csv", std::ios::trunc);
     if (!emo_csv.is_open())
     {
-        std::cerr << "Failed to open emotion_trajectory.csv for writing!\n";
+        std::cerr << "Failed to open emotion_trajectory_full.csv!\n";
         return 1;
     }
-    emo_csv << "Lifetime,Episode,Step,Valence,Fear,Dominance,ExploreBias\n";
+    emo_csv << "Lifetime,Episode,Step,Valence,Fear,Dominance,ExploreBias,Phase\n";
     emo_csv << std::fixed << std::setprecision(6);
+
+    std::string current_phase = "Normal";
 
     for (int life = 0; life < num_lifetimes; ++life)
     {
@@ -60,50 +67,61 @@ int main()
                   << "│ Starting Lifetime " << (life + 1) << " / " << num_lifetimes << " ";
 
         bool is_trauma = (life == 2);
-        bool is_therapy = (life == 6);      // Therapy phase in lifetime 7
-        agent.set_therapy_mode(is_therapy); // Set for pharmacological effect
+        bool is_therapy = (life == 6);
+        bool is_post_recovery = (life == 6 && true); // We'll handle phase inside therapy lifetime
 
-        int episodes_this_life = is_therapy ? therapy_episodes : base_episodes_per_lifetime;
+        int episodes_this_life = (is_therapy) ? therapy_episodes : base_episodes;
 
         if (is_trauma)
         {
-            std::cout << " [TRAUMA PHASE - intensified] ";
+            std::cout << " [TRAUMA PHASE] ";
+            current_phase = "Trauma";
         }
         else if (is_therapy)
         {
-            std::cout << " [INTENSIVE THERAPY PHASE - healing with exposure] ";
+            std::cout << " [INTENSIVE THERAPY + POST-RECOVERY STRESS/RELAPSE] ";
+            current_phase = "Therapy";
         }
+        else
+        {
+            current_phase = "Normal";
+        }
+
         std::cout << "│\n└────────────────────────────────────┘\n";
 
-        // Load from previous life (skip first)
         if (life > 0)
         {
             try
             {
                 agent.load(save_file);
                 std::cout << "Loaded state from previous lifetime.\n";
-
                 EmotionState current = agent.get_emotion();
                 evolve_personality_baseline(current, rng);
                 agent.set_emotion(current);
-
-                std::cout << "Current baseline: Dominance=" << current.dominance
-                          << " | Fear=" << current.fear << "\n";
+                std::cout << "Baseline → Dominance=" << current.dominance << " | Fear=" << current.fear << "\n";
             }
             catch (const std::exception &e)
             {
-                std::cout << "No previous state or load failed: " << e.what() << "\n";
+                std::cout << "Load failed: " << e.what() << "\n";
             }
         }
+
+        agent.set_therapy_mode(is_therapy);
 
         for (int ep = 0; ep < episodes_this_life; ++ep)
         {
             std::cout << "\n=== Episode " << ep << " ===\n";
             agent.set_merge_threshold(0.95 - 0.01 * ep);
 
-            for (int step = 0; step < steps_per_episode; ++step)
+            // In therapy lifetime, after ~20 episodes → switch to stress test
+            if (is_therapy && ep >= 20)
             {
-                // Perception
+                current_phase = (ep < 25) ? "Post-Recovery Stress Test" : "Relapse Prevention";
+                agent.set_therapy_mode(false); // Turn off pharma boost after therapy
+            }
+
+            for (int step = 0; step < 5; ++step)
+            { // steps_per_episode = 5
                 int discrete_state = step % 4;
                 std::uniform_real_distribution<double> small_noise(-0.01, 0.01);
                 PatternSignature perception({static_cast<double>(discrete_state), 0.3 + small_noise(rng)});
@@ -111,75 +129,59 @@ int main()
 
                 Action action = agent.decide();
 
-                // **New: Trigger sensitivity** - Post-trauma, certain perceptions trigger fear
                 bool is_trigger = (life > 2 && discrete_state % 4 == 2);
-                if (is_therapy)
-                {
-                    is_trigger = is_trigger && (dist(rng) < therapy_trigger_prob); // Reduced in therapy
-                }
+                double trigger_p = is_therapy ? therapy_trigger_prob : stress_trigger_prob;
+                is_trigger = is_trigger && (dist(rng) < trigger_p);
 
-                // Reward logic
                 double r = dist(rng);
-                double reward_valence, reward_surprise = 0.05 + (dist(rng) * 0.1);
+                double reward_valence, reward_surprise = 0.05 + dist(rng) * 0.1;
 
                 if (is_therapy)
                 {
-                    // Therapy phase: Only positive rewards, low surprise for healing
-                    reward_valence = 0.1 + (dist(rng) * 0.2);    // +0.1 to +0.3
-                    reward_surprise = 0.05 + (dist(rng) * 0.05); // Low surprise
+                    reward_valence = 0.1 + dist(rng) * 0.2;
+                    reward_surprise = 0.05 + dist(rng) * 0.05;
                 }
                 else if (is_trauma)
                 {
-                    // Intensified trauma: 40% chance severe negative (-0.45 to -0.65)
                     if (r < 0.40)
                     {
-                        reward_valence = -0.45 - (dist(rng) * 0.20); // -0.45 to -0.65
+                        reward_valence = -0.45 - dist(rng) * 0.20;
                         reward_surprise += 0.7;
-                    }
-                    else if (r < 0.60)
-                    {
-                        reward_valence = 0.06 + (dist(rng) * 0.06);
                     }
                     else
                     {
-                        reward_valence = 0.02 + (dist(rng) * 0.02);
+                        reward_valence = (r < 0.60) ? 0.06 + dist(rng) * 0.06 : 0.02 + dist(rng) * 0.02;
                     }
                 }
                 else
                 {
-                    // Normal phase
-                    if (r < 0.08)
+                    // Normal or post-recovery
+                    if (r < mild_negative_prob)
                     {
-                        reward_valence = -0.15 - (dist(rng) * 0.1);
-                        reward_surprise += 0.4;
-                    }
-                    else if (r < 0.38)
-                    {
-                        reward_valence = 0.15 + (dist(rng) * 0.1);
+                        reward_valence = -negative_valence_range * dist(rng);
+                        reward_surprise += 0.2;
                     }
                     else
                     {
-                        reward_valence = 0.04 + (dist(rng) * 0.04);
+                        reward_valence = 0.04 + dist(rng) * 0.08;
                     }
                 }
 
-                // **New: Exposure therapy element** - Force explore occasionally in therapy
+                // Exposure only during therapy
                 if (is_therapy && dist(rng) < exposure_prob && action.name == "noop")
                 {
                     agent.force_action("explore");
-                    action = agent.decide(); // Re-decide (now forced)
-                    reward_valence = 0.4;    // Heavy positive reward for exposure
-                    std::cout << "[DBEA] Exposure therapy: Forcing explore action!\n";
+                    action = agent.decide();
+                    reward_valence = 0.4;
+                    std::cout << "[DBEA] Exposure therapy: Forcing explore!\n";
                 }
 
-                // Apply trigger sensitivity
-                if (is_trigger && agent.get_emotion().fear > 0.2)
+                if (is_trigger && agent.get_emotion().fear > 0.15)
                 {
-                    reward_surprise += 0.3; // Boost surprise to trigger flashback
+                    reward_surprise += 0.25;
                     std::cout << "[DBEA] Trigger sensitivity activated! Boosting surprise.\n";
                 }
 
-                // Streak punishment
                 static int explore_streak = 0;
                 if (action.name == "explore")
                 {
@@ -197,26 +199,24 @@ int main()
                 agent.receive_reward(reward_valence, reward_surprise);
                 agent.learn();
 
-                // Console logging
                 std::cout << "Step " << step << " | Action: " << action.name
-                          << " | Reward: " << reward_valence << "\n";
+                          << " | Reward: " << reward_valence << " | Phase: " << current_phase << "\n";
 
                 auto [n, e] = agent.get_proto_action_values();
-                std::cout << "Proto-belief | Top Action: " << (e >= n ? "explore" : "noop")
+                std::cout << "Proto-belief | Top: " << (e >= n ? "explore" : "noop")
                           << " | Values: (noop=" << n << ", explore=" << e << ")\n";
 
-                // **CSV logging** — every step
                 emo_csv << (life + 1) << "," << ep << "," << step << ","
                         << agent.get_emotion().valence << ","
                         << agent.get_emotion().fear << ","
                         << agent.get_emotion().dominance << ","
-                        << agent.get_emotion().explore_bias << "\n";
+                        << agent.get_emotion().explore_bias << ","
+                        << current_phase << "\n";
             }
 
             agent.prune_beliefs(0.40);
         }
 
-        // Save state
         try
         {
             agent.save(save_file);
@@ -229,6 +229,7 @@ int main()
     }
 
     emo_csv.close();
-    std::cout << "\nAll lifetimes completed. Emotion data saved to emotion_trajectory.csv\n";
+    std::cout << "\nSimulation complete. Full trajectory saved to emotion_trajectory_full.csv\n";
+    std::cout << "Ready for GridWorld deployment in next phase.\n";
     return 0;
 }
