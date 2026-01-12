@@ -44,10 +44,18 @@ cmake_ninja_workdir = C$:/dbea/build/
 
 build cmake_object_order_depends_target_dbea_main: phony || .
 
+build CMakeFiles/dbea_main.dir/environments/gridworld/GridWorld.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/environments/gridworld/GridWorld.cpp || cmake_object_order_depends_target_dbea_main
+  DEP_FILE = CMakeFiles\dbea_main.dir\environments\gridworld\GridWorld.cpp.obj.d
+  FLAGS = -std=gnu++17
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
+  OBJECT_DIR = CMakeFiles\dbea_main.dir
+  OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\environments\gridworld
+  TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
+
 build CMakeFiles/dbea_main.dir/src/agent/Agent.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/agent/Agent.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\agent\Agent.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\agent
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -55,7 +63,7 @@ build CMakeFiles/dbea_main.dir/src/agent/Agent.cpp.obj: CXX_COMPILER__dbea_main_
 build CMakeFiles/dbea_main.dir/src/agent/Decision.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/agent/Decision.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\agent\Decision.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\agent
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -63,7 +71,7 @@ build CMakeFiles/dbea_main.dir/src/agent/Decision.cpp.obj: CXX_COMPILER__dbea_ma
 build CMakeFiles/dbea_main.dir/src/agent/Learning.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/agent/Learning.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\agent\Learning.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\agent
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -71,7 +79,7 @@ build CMakeFiles/dbea_main.dir/src/agent/Learning.cpp.obj: CXX_COMPILER__dbea_ma
 build CMakeFiles/dbea_main.dir/src/belief/BeliefDecay.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/belief/BeliefDecay.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\belief\BeliefDecay.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\belief
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -79,7 +87,7 @@ build CMakeFiles/dbea_main.dir/src/belief/BeliefDecay.cpp.obj: CXX_COMPILER__dbe
 build CMakeFiles/dbea_main.dir/src/belief/BeliefGraph.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/belief/BeliefGraph.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\belief\BeliefGraph.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\belief
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -87,7 +95,7 @@ build CMakeFiles/dbea_main.dir/src/belief/BeliefGraph.cpp.obj: CXX_COMPILER__dbe
 build CMakeFiles/dbea_main.dir/src/belief/BeliefNode.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/belief/BeliefNode.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\belief\BeliefNode.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\belief
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -95,7 +103,7 @@ build CMakeFiles/dbea_main.dir/src/belief/BeliefNode.cpp.obj: CXX_COMPILER__dbea
 build CMakeFiles/dbea_main.dir/src/cognition/PatternMatcher.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/cognition/PatternMatcher.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\cognition\PatternMatcher.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\cognition
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -103,7 +111,7 @@ build CMakeFiles/dbea_main.dir/src/cognition/PatternMatcher.cpp.obj: CXX_COMPILE
 build CMakeFiles/dbea_main.dir/src/cognition/PatternSignature.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/cognition/PatternSignature.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\cognition\PatternSignature.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\cognition
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -111,7 +119,7 @@ build CMakeFiles/dbea_main.dir/src/cognition/PatternSignature.cpp.obj: CXX_COMPI
 build CMakeFiles/dbea_main.dir/src/core/Config.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/core/Config.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\core\Config.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\core
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -119,7 +127,7 @@ build CMakeFiles/dbea_main.dir/src/core/Config.cpp.obj: CXX_COMPILER__dbea_main_
 build CMakeFiles/dbea_main.dir/src/core/Utils.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/core/Utils.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\core\Utils.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\core
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -127,7 +135,7 @@ build CMakeFiles/dbea_main.dir/src/core/Utils.cpp.obj: CXX_COMPILER__dbea_main_u
 build CMakeFiles/dbea_main.dir/src/emotion/EmotionState.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/emotion/EmotionState.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\emotion\EmotionState.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src\emotion
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -135,7 +143,7 @@ build CMakeFiles/dbea_main.dir/src/emotion/EmotionState.cpp.obj: CXX_COMPILER__d
 build CMakeFiles/dbea_main.dir/src/main.cpp.obj: CXX_COMPILER__dbea_main_unscanned_ C$:/dbea/src/main.cpp || cmake_object_order_depends_target_dbea_main
   DEP_FILE = CMakeFiles\dbea_main.dir\src\main.cpp.obj.d
   FLAGS = -std=gnu++17
-  INCLUDES = -IC:/dbea/include -IC:/dbea/build/_deps/json-src/include
+  INCLUDES = -IC:/dbea/include -IC:/dbea/environments -IC:/dbea/build/_deps/json-src/include
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   OBJECT_FILE_DIR = CMakeFiles\dbea_main.dir\src
   TARGET_SUPPORT_DIR = CMakeFiles\dbea_main.dir
@@ -148,7 +156,7 @@ build CMakeFiles/dbea_main.dir/src/main.cpp.obj: CXX_COMPILER__dbea_main_unscann
 #############################################
 # Link the executable dbea_main.exe
 
-build dbea_main.exe: CXX_EXECUTABLE_LINKER__dbea_main_ CMakeFiles/dbea_main.dir/src/agent/Agent.cpp.obj CMakeFiles/dbea_main.dir/src/agent/Decision.cpp.obj CMakeFiles/dbea_main.dir/src/agent/Learning.cpp.obj CMakeFiles/dbea_main.dir/src/belief/BeliefDecay.cpp.obj CMakeFiles/dbea_main.dir/src/belief/BeliefGraph.cpp.obj CMakeFiles/dbea_main.dir/src/belief/BeliefNode.cpp.obj CMakeFiles/dbea_main.dir/src/cognition/PatternMatcher.cpp.obj CMakeFiles/dbea_main.dir/src/cognition/PatternSignature.cpp.obj CMakeFiles/dbea_main.dir/src/core/Config.cpp.obj CMakeFiles/dbea_main.dir/src/core/Utils.cpp.obj CMakeFiles/dbea_main.dir/src/emotion/EmotionState.cpp.obj CMakeFiles/dbea_main.dir/src/main.cpp.obj
+build dbea_main.exe: CXX_EXECUTABLE_LINKER__dbea_main_ CMakeFiles/dbea_main.dir/environments/gridworld/GridWorld.cpp.obj CMakeFiles/dbea_main.dir/src/agent/Agent.cpp.obj CMakeFiles/dbea_main.dir/src/agent/Decision.cpp.obj CMakeFiles/dbea_main.dir/src/agent/Learning.cpp.obj CMakeFiles/dbea_main.dir/src/belief/BeliefDecay.cpp.obj CMakeFiles/dbea_main.dir/src/belief/BeliefGraph.cpp.obj CMakeFiles/dbea_main.dir/src/belief/BeliefNode.cpp.obj CMakeFiles/dbea_main.dir/src/cognition/PatternMatcher.cpp.obj CMakeFiles/dbea_main.dir/src/cognition/PatternSignature.cpp.obj CMakeFiles/dbea_main.dir/src/core/Config.cpp.obj CMakeFiles/dbea_main.dir/src/core/Utils.cpp.obj CMakeFiles/dbea_main.dir/src/emotion/EmotionState.cpp.obj CMakeFiles/dbea_main.dir/src/main.cpp.obj
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\dbea_main.dir
   POST_BUILD = cd .

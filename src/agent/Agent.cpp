@@ -6,18 +6,25 @@
 #include <stdexcept> // NEW for exceptions
 namespace dbea
 {
+    // In Agent::Agent(const Config &cfg)
     Agent::Agent(const Config &cfg)
-        : config(cfg),
-          belief_graph(cfg),
-          last_reward(0.0)
+        : config(cfg), belief_graph(cfg), last_reward(0.0)
     {
-        available_actions.push_back(Action{0, "noop"});
-        available_actions.push_back(Action{1, "explore"});
-        auto proto = std::make_shared<BeliefNode>("proto-belief", PatternSignature({0.1, 0.1}));
-        proto->action_values[0] = 0.1;
-        proto->action_values[1] = 0.2;
+        // 4 directional actions
+        available_actions.emplace_back(0, "up");
+        available_actions.emplace_back(1, "down");
+        available_actions.emplace_back(2, "left");
+        available_actions.emplace_back(3, "right");
+
+        // Initialize proto-belief with neutral values
+        auto proto = std::make_shared<BeliefNode>("proto-belief", PatternSignature({0.5, 0.5, 0.0, 0.0}));
+        for (const auto &act : available_actions)
+        {
+            proto->action_values[act.id] = 0.1; // neutral start
+        }
         belief_graph.add_belief(proto);
-        last_action = available_actions[0];
+
+        last_action = available_actions[0]; // up
     }
     void Agent::perceive(const PatternSignature &input)
     {
