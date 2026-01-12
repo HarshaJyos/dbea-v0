@@ -9,8 +9,8 @@ namespace dbea
 {
     // In Agent::Agent(const Config &cfg)
     Agent::Agent(const Config &cfg)
-        : config(cfg), belief_graph(cfg), last_reward(0.0), rng(std::random_device{}()) // ← Seed with random device (good entropy)
-    {
+    : config(cfg), belief_graph(cfg), last_reward(0.0), rng(std::random_device{}())
+{
         // 4 directional actions
         available_actions.emplace_back(0, "up");
         available_actions.emplace_back(1, "down");
@@ -26,6 +26,10 @@ namespace dbea
         belief_graph.add_belief(proto);
 
         last_action = available_actions[0]; // up
+        // Initialize visit counter keys (optional but helps)
+    for (int x = 0; x < 5; ++x)
+        for (int y = 0; y < 5; ++y)
+            state_visit_count[std::to_string(x) + "_" + std::to_string(y)] = 0;
     }
     void Agent::perceive(const PatternSignature &input)
     {
@@ -62,68 +66,94 @@ namespace dbea
         belief_graph.prune();
     }
     Action Agent::decide()
+{
+    std::unordered_map<int, double> action_scores;
+    double total_activation = 0.0;
+    for (const auto &belief : belief_graph.nodes)
+        total_activation += belief->activation;
+
+    // Base Q-values
+    for (const auto &belief : belief_graph.nodes)
     {
-        std::unordered_map<int, double> action_scores;
-        double total_activation = 0.0;
-        for (const auto &belief : belief_graph.nodes)
-        {
-            total_activation += belief->activation;
-        }
-        // Base Q-values from beliefs
-        for (const auto &belief : belief_graph.nodes)
-        {
-            for (const auto &action : available_actions)
-            {
-                double weight = belief->activation / (total_activation + 1e-6);
-                action_scores[action.id] += weight * belief->predict_action_value(action.id);
-            }
-        }
-        // NEW: Apply emotional bias to action scores
-        // 1. Epsilon-greedy (very strong at beginning)
-        // In decide():
-        static double current_epsilon = config.exploration_rate;
-        current_epsilon = std::max(config.min_exploration,
-                                   current_epsilon * config.epsilon_decay);
-
-        static std::uniform_real_distribution<double> epsilon_dist(0.0, 1.0);
-        if (epsilon_dist(rng) < current_epsilon)
-        {
-            static std::uniform_int_distribution<size_t> action_dist(0, available_actions.size() - 1);
-            last_action = available_actions[action_dist(rng)];
-            std::cout << "[Exploration] Epsilon-greedy random action: " << last_action.name << "\n";
-            return last_action;
-        }
-
-        // 2. Emotional bias — even stronger now
-        double emotional_bonus = emotion.explore_bias * config.explore_bias_scale;
-        double fear_penalty = emotion.fear * 0.40;
-
-        action_scores[3] += emotional_bonus;       // right = explore direction (id 3)
-        action_scores[0] -= emotional_bonus * 0.7; // reduce up/noop when curious
-        action_scores[1] -= fear_penalty;          // down punished more when afraid
-        // Select best action
-        Action best = available_actions[0];
-        double best_score = -1e9;
         for (const auto &action : available_actions)
         {
-            double score = action_scores[action.id];
-            if (score > best_score)
-            {
-                best_score = score;
-                best = action;
-            }
-        }
-        last_action = best;
-        // Predict reward for chosen action (for next error calculation)
-        double chosen_pred = 0.0;
-        for (const auto &belief : belief_graph.nodes)
-        {
             double weight = belief->activation / (total_activation + 1e-6);
-            chosen_pred += weight * belief->predict_action_value(best.id);
+            action_scores[action.id] += weight * belief->predict_action_value(action.id);
         }
-        last_predicted_reward = chosen_pred;
-        return best;
     }
+
+    // ────────────────────────────────────────────────
+    // NEW: Position-aware curiosity bonus
+    // ────────────────────────────────────────────────
+    // We need current position — unfortunately we don't have direct access here.
+    // Simplest workaround: approximate from last perception (norm_x, norm_y)
+    if (!last_perception.features.empty() && last_perception.features.size() >= 2)
+    {
+        double norm_x = last_perception.features[0];
+        double norm_y = last_perception.features[1];
+        int grid_x = static_cast<int>(norm_x * 4.999); // 0..4
+        int grid_y = static_cast<int>(norm_y * 4.999);
+        std::string key = std::to_string(grid_x) + "_" + std::to_string(grid_y);
+
+        state_visit_count[key]++;
+
+        double visit_inverse = 1.0 / (1.0 + state_visit_count[key] * 0.08); // decays slowly
+        double curiosity_bonus = config.curiosity_boost * 0.7 * visit_inverse;
+
+        // Give higher bonus to lower-right quadrant (towards goal)
+        if (grid_x >= 2 && grid_y >= 2)
+            curiosity_bonus *= 1.6;
+
+        // Apply bonus especially to down & right
+        action_scores[1] += curiosity_bonus * 1.2;  // down
+        action_scores[3] += curiosity_bonus * 1.4;  // right
+    }
+
+    // Existing epsilon-greedy (unchanged except using updated config values)
+    static double current_epsilon = config.exploration_rate;
+    current_epsilon = std::max(config.min_exploration, current_epsilon * config.epsilon_decay);
+
+    static std::uniform_real_distribution<double> epsilon_dist(0.0, 1.0);
+    if (epsilon_dist(rng) < current_epsilon)
+    {
+        static std::uniform_int_distribution<size_t> action_dist(0, available_actions.size() - 1);
+        last_action = available_actions[action_dist(rng)];
+        return last_action;
+    }
+
+    // Emotional bias (unchanged)
+    double emotional_bonus = emotion.explore_bias * config.explore_bias_scale;
+    double fear_penalty = emotion.fear * 0.40;
+    action_scores[3] += emotional_bonus;
+    action_scores[0] -= emotional_bonus * 0.7;
+    action_scores[1] -= fear_penalty;
+
+    // Select best
+    Action best = available_actions[0];
+    double best_score = -1e9;
+    for (const auto &action : available_actions)
+    {
+        double score = action_scores[action.id];
+        if (score > best_score)
+        {
+            best_score = score;
+            best = action;
+        }
+    }
+
+    last_action = best;
+
+    // Predict reward for TD error
+    double chosen_pred = 0.0;
+    for (const auto &belief : belief_graph.nodes)
+    {
+        double weight = belief->activation / (total_activation + 1e-6);
+        chosen_pred += weight * belief->predict_action_value(best.id);
+    }
+    last_predicted_reward = chosen_pred;
+
+    return best;
+}
     void Agent::receive_reward(double valence, double surprise)
     {
         emotion.update(valence, surprise, 0.0, config); // avg_error comes later in learn()
@@ -132,43 +162,57 @@ namespace dbea
     void Agent::learn()
     {
         double total_error = 0.0;
-        int count = 0;
-        // NEW: Emotional modulation factors
-        double reinforcement_mod = 1.0 + 0.5 * emotion.valence + 0.3 * emotion.arousal;
-        double fear_decay_boost = 1.0 + 0.2 * emotion.fear; // fear → stronger decay
-        for (auto &belief : belief_graph.nodes)
-        {
-            double credit = belief->activation * last_reward;
-            belief->learn_action_value(last_action.id, credit, config.learning_rate, config.gamma);
-            if (credit > 0.0)
-            {
-                // Positive credit → reinforce stronger when valence/arousal high
-                belief->reinforce(config.belief_learning_rate * credit * reinforcement_mod);
-            }
-            else
-            {
-                // Negative → decay stronger when fear is high
-                belief->decay(config.belief_decay_rate * fear_decay_boost);
-            }
-            // Update prediction error
-            double error = std::abs(last_reward - last_predicted_reward);
-            belief->prediction_error = 0.7 * belief->prediction_error + 0.3 * error;
-            total_error += belief->prediction_error * belief->activation;
-            count++;
-        }
-        double avg_error = (count > 0) ? total_error / count : 0.0;
-        // Update emotions with computed avg_error
-        emotion.update(last_reward, 0.05, avg_error, config);
-        if (!belief_graph.nodes.empty())
-        {
-            auto &proto = *belief_graph.nodes.front();
-            if (proto.id == "proto-belief")
-            {
-                proto.decay(0.04);
-            }
-        }
-        double dynamic_merge_threshold = config.merge_threshold + 0.08 * (1.0 - emotion.dominance);
-        belief_graph.merge_beliefs(dynamic_merge_threshold);
+    int count = 0;
+
+    double reinforcement_mod = 1.0 + 0.5 * emotion.valence + 0.3 * emotion.arousal;
+    double fear_decay_boost = 1.0 + 0.2 * emotion.fear;
+
+    // NEW: Progress shaping — small bonus when moving right or down
+    double progress_bonus = 0.0;
+    if (!last_perception.features.empty() && last_perception.features.size() >= 2)
+    {
+        double norm_x = last_perception.features[0];
+        double norm_y = last_perception.features[1];
+        progress_bonus = (norm_x * 0.12) + (norm_y * 0.18); // stronger for Y
+    }
+
+    for (auto &belief : belief_graph.nodes)
+    {
+        double credit = belief->activation * (last_reward + progress_bonus);
+
+        // Scale update strength by how surprised the agent was
+        double surprise_factor = 1.0 + 2.5 * std::abs(last_reward - last_predicted_reward);
+        belief->learn_action_value(last_action.id, credit, config.learning_rate * surprise_factor, config.gamma);
+
+        if (credit > 0.0)
+            belief->reinforce(config.belief_learning_rate * credit * reinforcement_mod);
+        else
+            belief->decay(config.belief_decay_rate * fear_decay_boost);
+
+        double error = std::abs(last_reward - last_predicted_reward);
+        belief->prediction_error = 0.7 * belief->prediction_error + 0.3 * error;
+        total_error += belief->prediction_error * belief->activation;
+        count++;
+    }
+
+    double avg_error = (count > 0) ? total_error / count : 0.0;
+    emotion.update(last_reward, 0.05, avg_error, config);
+
+    // Proto-belief slow decay
+    if (!belief_graph.nodes.empty())
+    {
+        auto &proto = *belief_graph.nodes.front();
+        if (proto.id == "proto-belief")
+            proto.decay(0.035);  // slightly faster than before
+    }
+
+    // Adaptive merge & prune
+    double dynamic_merge = config.merge_threshold + 0.06 * (1.0 - emotion.dominance);
+    belief_graph.merge_beliefs(dynamic_merge);
+
+    // Adaptive prune: be more conservative when few beliefs
+    double prune_thresh = (belief_graph.nodes.size() < config.min_beliefs_before_prune) ? 0.18 : 0.32;
+    prune_beliefs(prune_thresh);
         // Debug output - cleaner version
         std::cout << "[DBEA] === Step Summary ===\n";
         for (const auto &belief : belief_graph.nodes)
