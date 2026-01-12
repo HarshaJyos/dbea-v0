@@ -16,6 +16,12 @@ void EmotionState::update(double reward_valence, double reward_surprise, double 
 
     // **SLOWER RECOVERY (PTSD-like)**: Base decay -0.003; even slower if fear > 0.3 (-0.0015)
     double fear_decay = (fear > 0.3) ? -0.0015 : -0.003;
+    
+    // Pharmacological simulation during therapy
+    if (config.therapy_mode) {
+        fear_decay = -0.05;  // Boosted decay to mimic SSRI/anti-anxiety effect
+    }
+    
     double fear_delta = 0.3 * (reward_surprise > 0.3 ? 0.15 : 0.25 * avg_error);
     fear = std::clamp(fear + fear_delta + fear_decay, 0.0, 1.0);
 
