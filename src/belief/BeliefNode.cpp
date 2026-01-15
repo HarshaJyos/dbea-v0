@@ -2,41 +2,47 @@
 #include <cmath>
 #include <algorithm>
 #include <string>
-
+#include <random>  // NEW for init
 namespace dbea
 {
-
     BeliefNode::BeliefNode(const std::string &id_, const PatternSignature &proto)
         : id(id_),
           prototype(proto),
           confidence(id_ == "proto-belief" ? 0.3 : 0.5),
           activation(0.0),
           evidence_count(1),
-          last_predicted_reward(0.0), // NEW
-          prediction_error(0.0)       // NEW
+          last_predicted_reward(0.0),
+          prediction_error(0.0),
+          fitness(0.0),  // NEW
+          mutation_rate(0.1),  // NEW
+          local_lr(0.1),  // NEW: Default to 0.1
+          emotional_affinity(5, 0.0)  // NEW: 5 dims, init 0
     {
+        // NEW: Random init for affinity if not proto
+        if (id_ != "proto-belief")
+        {
+            std::mt19937 rng(std::random_device{}());
+            std::uniform_real_distribution<double> dist(-0.2, 0.2);
+            for (auto& aff : emotional_affinity)
+                aff = dist(rng);
+        }
     }
 
     double BeliefNode::match_score(const PatternSignature &input) const
     {
         if (input.features.size() != prototype.features.size() || input.features.empty())
-        {
             return 0.0;
-        }
 
         double sum_sq_diff = 0.0;
         double max_range = 0.0;
-
         for (size_t i = 0; i < input.features.size(); ++i)
         {
             double diff = input.features[i] - prototype.features[i];
             sum_sq_diff += diff * diff;
             max_range += 1.0;
         }
-
         double dist = std::sqrt(sum_sq_diff);
         double normalized = 1.0 - (dist / std::sqrt(max_range));
-
         return std::max(0.0, normalized);
     }
 
@@ -54,27 +60,17 @@ namespace dbea
     double BeliefNode::predict_action_value(int action_id) const
     {
         auto it = action_values.find(action_id);
-        if (it != action_values.end())
-        {
-            return it->second;
-        }
-        return 0.0;
+        return (it != action_values.end()) ? it->second : 0.0;
     }
 
     void BeliefNode::learn_action_value(int action_id, double reward, double learning_rate, double gamma)
     {
         double old_value = action_values[action_id];
-
         double next_max = 0.0;
-        for (const auto &[_, v] : action_values)
-        {
+        for (const auto& [_, v] : action_values)
             next_max = std::max(next_max, v);
-        }
-
         double target = reward + gamma * next_max;
         double new_value = old_value + learning_rate * (target - old_value);
-
         action_values[action_id] = new_value;
     }
-
 } // namespace dbea

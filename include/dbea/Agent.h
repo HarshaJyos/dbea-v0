@@ -47,5 +47,6 @@ namespace dbea
         double last_predicted_reward = 0.0;
         std::mt19937 rng;  // ← Add this random engine
         std::unordered_map<std::string, int> state_visit_count;  // key = "x_y"
+        double total_activation = 0.0;
     };
 } // namespace dbea
