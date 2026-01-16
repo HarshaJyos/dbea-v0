@@ -6,7 +6,7 @@ struct Config
     double learning_rate = 0.1;
     double belief_learning_rate = 0.05;
     double belief_decay_rate = 0.01;
-    double merge_threshold = 0.92;
+    double merge_threshold = 0.96;
     bool debug_merging = true;
     double curiosity_boost = 0.65;
     double curiosity_decay = 0.008;
@@ -22,14 +22,16 @@ struct Config
     double gamma = 0.98;
     int min_beliefs_before_prune = 12;
     // NEW: Evolutionary parameters
-    int evo_cycle_freq = 50;  // Evolve every N steps
-    double crisis_reward_thresh = -0.5;  // Trigger mass extinction if avg reward < this
-    double niche_bonus_scale = 0.3;  // ξ
-    double symbiotic_uplift = 0.15;  // ζ
-    double niche_radius = 0.2;  // Distance threshold for niche density
-    double co_activation_thresh = 0.3;  // For symbiosis detection
-    double symbiosis_prob = 0.3;  // Prob of horizontal transfer
-    // Parasite prevention
-    double parasite_tau = 4.5;  // τ threshold
-    double parasite_phi = 0.1;  // ϕ min intrinsic fitness (relative to avg)
+    // Evolutionary parameters — tuned for stability
+    int evo_cycle_freq = 200;           // Much rarer — was 50
+    double crisis_reward_thresh = -1.5; // Harder to trigger crisis
+    double niche_bonus_scale = 0.25;
+    double symbiotic_uplift = 0.12;
+    double niche_radius = 0.25;
+    double co_activation_thresh = 0.35;
+    double symbiosis_prob = 0.18; // Less frequent transfer
+
+    // Parasite prevention — much less aggressive
+    double parasite_tau = 10.0; // Very high threshold
+    double parasite_phi = 0.08; // Lower floor
 };

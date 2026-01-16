@@ -2,7 +2,7 @@
 #include <cmath>
 #include <algorithm>
 #include <string>
-#include <random>  // NEW for init
+#include <random> // NEW for init
 namespace dbea
 {
     BeliefNode::BeliefNode(const std::string &id_, const PatternSignature &proto)
@@ -13,17 +13,17 @@ namespace dbea
           evidence_count(1),
           last_predicted_reward(0.0),
           prediction_error(0.0),
-          fitness(0.0),  // NEW
-          mutation_rate(0.1),  // NEW
-          local_lr(0.1),  // NEW: Default to 0.1
-          emotional_affinity(5, 0.0)  // NEW: 5 dims, init 0
+          fitness(id_ == "proto-belief" ? 2.0 : 0.8),  // ← Bump from 0.5 to 0.8 
+          mutation_rate(0.1),
+          local_lr(0.1),
+          emotional_affinity(5, 0.0)
     {
-        // NEW: Random init for affinity if not proto
+        // Random init for affinity only if not proto-belief
         if (id_ != "proto-belief")
         {
             std::mt19937 rng(std::random_device{}());
             std::uniform_real_distribution<double> dist(-0.2, 0.2);
-            for (auto& aff : emotional_affinity)
+            for (auto &aff : emotional_affinity)
                 aff = dist(rng);
         }
     }
@@ -67,7 +67,7 @@ namespace dbea
     {
         double old_value = action_values[action_id];
         double next_max = 0.0;
-        for (const auto& [_, v] : action_values)
+        for (const auto &[_, v] : action_values)
             next_max = std::max(next_max, v);
         double target = reward + gamma * next_max;
         double new_value = old_value + learning_rate * (target - old_value);

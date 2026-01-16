@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-#include <vector> // for PatternSignature
+#include <vector>
 #include "dbea/PatternSignature.h"
+
 namespace dbea
 {
     struct BeliefNode
@@ -15,12 +16,13 @@ namespace dbea
         double last_predicted_reward = 0.0;
         double prediction_error = 0.0;
         std::unordered_map<int, double> action_values;
-        double fitness = 0.0;  // NEW: Cumulative causal contribution
-        double mutation_rate = 0.1;  // NEW: Heritable, adaptive
-        double local_lr;  // NEW: Belief-specific learning rate
-        std::vector<double> emotional_affinity;  // NEW: [5] for emotion biases
-        BeliefNode(const std::string &id_,
-                   const PatternSignature &proto);
+        double fitness = 0.0;
+        double mutation_rate = 0.1;
+        double local_lr;
+        std::vector<double> emotional_affinity;
+
+        BeliefNode(const std::string &id_, const PatternSignature &proto);
+
         double match_score(const PatternSignature &input) const;
         void reinforce(double amount);
         void decay(double amount);

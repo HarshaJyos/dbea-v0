@@ -175,6 +175,12 @@ namespace dbea
             double credit = belief->activation * (last_reward + progress_bonus);
             double surprise_factor = 1.0 + 2.5 * std::abs(last_reward - last_predicted_reward);
             belief->learn_action_value(last_action.id, credit, belief->local_lr * surprise_factor, config.gamma);
+            for (auto &[id, val] : belief->action_values)
+            {
+                if (!std::isfinite(val))
+                    val = 0.1;                    // Reset to initial if nan
+                val = std::clamp(val, -1.0, 5.0); // Reasonable bounds
+            }
 
             if (credit > 0.0)
                 belief->reinforce(config.belief_learning_rate * credit * reinforcement_mod);
@@ -224,9 +230,18 @@ namespace dbea
             double symbiotic_uplift_term = config.symbiotic_uplift * (symbiotic_income / (partner_count + 1e-6));
 
             // Delta fitness
-            double delta_fitness = 0.01 * alpha_bt * delta_td * (causal_mask ? 1.0 : 0.0) + 0.2 * regret_bonus - 0.4 * regret_penalty + niche_bonus + symbiotic_uplift_term;
+            double delta_fitness = 0.01 * alpha_bt * delta_td * (causal_mask ? 1.0 : 0.0) +
+                                   0.2 * regret_bonus - 0.4 * regret_penalty +
+                                   niche_bonus + symbiotic_uplift_term;
 
             belief->fitness += delta_fitness;
+
+            // CRITICAL: Prevent NaN propagation
+            if (!std::isfinite(belief->fitness))
+            {
+                belief->fitness = (belief->id == "proto-belief") ? 2.0 : 0.5;
+            }
+            belief->fitness = std::max(0.0, belief->fitness); // Never negative
         }
 
         double avg_error = (count > 0) ? total_error / count : 0.0;
@@ -239,14 +254,14 @@ namespace dbea
                 proto.decay(0.035);
         }
 
-        double dynamic_merge = config.merge_threshold + 0.06 * (1.0 - emotion.dominance);
+        double dynamic_merge = config.merge_threshold + 0.04 * (1.0 - emotion.dominance);
         belief_graph.merge_beliefs(dynamic_merge);
 
         // Adaptive prune: much gentler when population is low
         double prune_thresh;
         size_t current_size = belief_graph.nodes.size();
         if (current_size < 5)
-            prune_thresh = 0.05;           // Very gentle — almost no pruning
+            prune_thresh = 0.05; // Very gentle — almost no pruning
         else if (current_size < config.min_beliefs_before_prune)
             prune_thresh = 0.12;
         else

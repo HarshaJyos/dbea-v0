@@ -91,7 +91,7 @@ int main()
         for (int ep = 0; ep < episodes_this_life; ++ep)
         {
             std::cout << "\n=== Episode " << ep << " ===\n";
-            agent.set_merge_threshold(0.92 - 0.01 * ep);  // Adjusted for new merge_threshold
+            agent.set_merge_threshold(0.92 - 0.01 * ep); // Adjusted for new merge_threshold
             if (is_therapy && ep >= 20)
             {
                 current_phase = (ep < 25) ? "Post-Recovery Stress Test" : "Relapse Prevention";
@@ -195,8 +195,8 @@ int main()
     env.reset();
     std::ofstream grid_log("gridworld_trajectory.csv");
     grid_log << "Episode,Step,X,Y,Reward,Done\n";
-    const int num_episodes = 500;  // Increased as per recommendations
-    const int max_steps_per_episode = 200;
+    const int num_episodes = 100; // Increased as per recommendations
+    const int max_steps_per_episode = 150;
     int goals_reached = 0;
     for (int ep = 0; ep < num_episodes; ++ep)
     {
