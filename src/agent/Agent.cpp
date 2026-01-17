@@ -40,7 +40,7 @@ namespace dbea
         double base_threshold = 0.93;
         if (emotion.curiosity > config.curiosity_threshold)
             base_threshold -= config.curiosity_threshold_drop * emotion.curiosity;
-        double dominance_effect = 0.12 * (1.0 - emotion.dominance);
+        double dominance_effect = 0.18 * (1.0 - emotion.dominance);
         double creation_threshold = base_threshold - dominance_effect - 0.35 * emotion.curiosity;
 
         auto belief = belief_graph.maybe_create_belief(blended, creation_threshold);
@@ -80,8 +80,8 @@ namespace dbea
             double curiosity_bonus = config.curiosity_boost * 0.7 * visit_inverse;
             if (grid_x >= 2 && grid_y >= 2)
                 curiosity_bonus *= 2.6; // ← was 2.2, try 2.6–2.8
-            if (grid_x >= 3 && grid_y >= 3)
-                curiosity_bonus *= 1.4;                // extra kick when very close
+            //if (grid_x >= 3 && grid_y >= 3)
+            //   curiosity_bonus *= 1.4;                // extra kick when very close
             action_scores[1] += curiosity_bonus * 1.2; // down
             action_scores[3] += curiosity_bonus * 1.4; // right
         }

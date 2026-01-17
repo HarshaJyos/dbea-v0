@@ -74,7 +74,7 @@ namespace dbea
                               : -0.008; // ← was -0.02 — milder wall-bump penalty
         // Manhattan distance to goal (4,4)
         int dist = std::abs(position.first - 4) + std::abs(position.second - 4);
-        double shaping = 0.008 * (24 - dist); // max +0.192 when at (0,0), 0 at goal
+        double shaping = 0.004 * (24 - dist); // max +0.192 when at (0,0), 0 at goal
         reward += shaping;
         return reward;
     }
