@@ -30,9 +30,9 @@ int main()
     cfg.curiosity_decay = 0.008;
     cfg.curiosity_threshold = 0.25;
     cfg.epsilon_decay = 0.9995;
-    cfg.min_exploration = 0.35;
+    cfg.min_exploration = 0.42;
     cfg.explore_bias_scale = 0.45;
-    cfg.gamma = 0.98;
+    cfg.gamma = 0.985;
     std::mt19937 rng(std::random_device{}()); // better seeding than fixed 42
     std::uniform_real_distribution<double> dist(0.0, 1.0);
     const int num_lifetimes = 7;
@@ -195,7 +195,7 @@ int main()
     env.reset();
     std::ofstream grid_log("gridworld_trajectory.csv");
     grid_log << "Episode,Step,X,Y,Reward,Done\n";
-    const int num_episodes = 100; // Increased as per recommendations
+    const int num_episodes = 200; // Increased as per recommendations
     const int max_steps_per_episode = 150;
     int goals_reached = 0;
     for (int ep = 0; ep < num_episodes; ++ep)

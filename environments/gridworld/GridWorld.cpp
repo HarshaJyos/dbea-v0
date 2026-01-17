@@ -31,7 +31,7 @@ PatternSignature GridWorld::observe() {
 double GridWorld::get_tile_reward(int x, int y) const {
     if (x == goal.first && y == goal.second) return 1.0;
     if (risky[x][y]) return -0.1;
-    return 0.08;  // ← was 0.05 — stronger movement incentive
+    return 0.12;  // ← was 0.05 — stronger movement incentive
 }
 
 bool GridWorld::try_move(int dx, int dy) {
@@ -55,7 +55,7 @@ double GridWorld::step(const Action& action) {
 
     bool moved = try_move(dx, dy);
     double reward = moved ? get_tile_reward(position.first, position.second)
-                          : -0.015;  // ← was -0.02 — milder wall-bump penalty
+                          : -0.008;  // ← was -0.02 — milder wall-bump penalty
     return reward;
 }
 

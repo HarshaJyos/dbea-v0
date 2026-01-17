@@ -17,9 +17,9 @@ struct Config
     double streak_punish_amount = -0.15;
     bool therapy_mode = false;
     double epsilon_decay = 0.9995;
-    double min_exploration = 0.35;
+    double min_exploration = 0.42;
     double explore_bias_scale = 0.45;
-    double gamma = 0.98;
+    double gamma = 0.985;
     int min_beliefs_before_prune = 12;
     // NEW: Evolutionary parameters
     // Evolutionary parameters — tuned for stability
