@@ -79,7 +79,7 @@ namespace dbea
             double visit_inverse = 1.0 / (1.0 + state_visit_count[key] * 0.08);
             double curiosity_bonus = config.curiosity_boost * 0.7 * visit_inverse;
             if (grid_x >= 2 && grid_y >= 2)
-                curiosity_bonus *= 2.8;
+                curiosity_bonus *= 3.6;
             action_scores[1] += curiosity_bonus * 1.2; // down
             action_scores[3] += curiosity_bonus * 1.4; // right
         }
