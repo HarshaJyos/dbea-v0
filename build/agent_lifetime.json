@@ -2,12 +2,12 @@
   "beliefs": [
     {
       "action_values": {
-        "0": 1.4318365770559784,
-        "1": 1.1037787214369572,
-        "2": 1.4746397160908873,
-        "3": 1.2918651900960267
+        "0": 0.767493278701199,
+        "1": 0.531649548217348,
+        "2": 0.7496331622227556,
+        "3": 0.8355911886723368
       },
-      "confidence": 0.9883857081363967,
+      "confidence": 0.6929046093493049,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -15,49 +15,24 @@
         0.0,
         0.0
       ],
-      "evidence_count": 62,
-      "fitness": 9.574568195983817,
-      "id": "belief_327",
-      "local_lr": 0.1,
-      "mutation_rate": 0.11000000000000001,
-      "prototype": [
-        1.95,
-        0.2936159377879411
-      ]
-    },
-    {
-      "action_values": {
-        "0": 0.8159214524867728,
-        "1": 0.6478438313383653,
-        "2": 0.95313245770408,
-        "3": 0.961385964311256
-      },
-      "confidence": 0.774471137975228,
-      "emotional_affinity": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "evidence_count": 59,
-      "fitness": 13.138901937967695,
+      "evidence_count": 53,
+      "fitness": 10.412496906968453,
       "id": "belief_332",
       "local_lr": 0.1,
       "mutation_rate": 0.11000000000000001,
       "prototype": [
         0.10000000000000002,
-        0.2978702963878552
+        0.29640939456775645
       ]
     },
     {
       "action_values": {
-        "0": 1.7937374830233905,
-        "1": 1.4687886681383309,
-        "2": 1.9759760695317004,
-        "3": 1.919432238680297
+        "0": 0.6541215901634845,
+        "1": 0.519084773914341,
+        "2": 0.7814329896041209,
+        "3": 0.6688202514564979
       },
-      "confidence": 1.0,
+      "confidence": 0.5166661145254914,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -65,24 +40,49 @@
         0.0,
         0.0
       ],
-      "evidence_count": 384,
-      "fitness": 9.211806282414809,
-      "id": "belief_265",
+      "evidence_count": 33,
+      "fitness": 15.608765735291037,
+      "id": "belief_334",
+      "local_lr": 0.1,
+      "mutation_rate": 0.11000000000000001,
+      "prototype": [
+        2.9499999999999997,
+        0.29668472263724427
+      ]
+    },
+    {
+      "action_values": {
+        "0": 1.7970397979244055,
+        "1": 1.3850828489036724,
+        "2": 1.638892581015299,
+        "3": 1.7633104007692988
+      },
+      "confidence": 0.9962055650091459,
+      "emotional_affinity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "evidence_count": 127,
+      "fitness": 10.3895736987544,
+      "id": "belief_275",
       "local_lr": 0.1,
       "mutation_rate": 0.12100000000000002,
       "prototype": [
-        0.9500003870273094,
-        0.3019190325138249
+        0.9675540177408564,
+        0.30256407633586996
       ]
     },
     {
       "action_values": {
-        "0": 1.8030226225276935,
-        "1": 1.4971616209254592,
-        "2": 1.8462456087590953,
-        "3": 1.6737966351761744
+        "0": 1.5616815210098678,
+        "1": 1.341509740914821,
+        "2": 1.4585706476147025,
+        "3": 1.4210416545445252
       },
-      "confidence": 0.9883857081363967,
+      "confidence": 0.9887538572303821,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -90,24 +90,24 @@
         0.0,
         0.0
       ],
-      "evidence_count": 118,
-      "fitness": 13.967085476080861,
-      "id": "belief_280",
+      "evidence_count": 109,
+      "fitness": 11.363274041872602,
+      "id": "belief_287",
       "local_lr": 0.1,
-      "mutation_rate": 0.12100000000000002,
+      "mutation_rate": 0.11000000000000001,
       "prototype": [
         1.9500000000000006,
-        0.297299291822424
+        0.29854358801167363
       ]
     },
     {
       "action_values": {
-        "0": 0.9646740304272393,
-        "1": 0.7805550819107518,
-        "2": 1.1190564070942912,
-        "3": 1.126297198775088
+        "0": 1.7906454688620408,
+        "1": 1.3741079103851113,
+        "2": 1.6338319910107644,
+        "3": 1.7594559696253345
       },
-      "confidence": 0.878045650787911,
+      "confidence": 0.9964247693613574,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -115,24 +115,49 @@
         0.0,
         0.0
       ],
-      "evidence_count": 91,
-      "fitness": 17.34158837154315,
+      "evidence_count": 147,
+      "fitness": 11.699815707341378,
+      "id": "belief_250",
+      "local_lr": 0.1,
+      "mutation_rate": 0.12100000000000002,
+      "prototype": [
+        0.95,
+        0.29816613448059265
+      ]
+    },
+    {
+      "action_values": {
+        "0": 0.8903456652516615,
+        "1": 0.6362817591073333,
+        "2": 0.8721188696820666,
+        "3": 0.9630735807861497
+      },
+      "confidence": 0.7515878192179305,
+      "emotional_affinity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "evidence_count": 85,
+      "fitness": 14.195773449035306,
       "id": "belief_309",
       "local_lr": 0.1,
       "mutation_rate": 0.11000000000000001,
       "prototype": [
         0.0801117232935415,
-        0.29925421637933547
+        0.29799388507809516
       ]
     },
     {
       "action_values": {
-        "0": 1.8456563259196175,
-        "1": 1.5235182008763095,
-        "2": 2.0274562399030684,
-        "3": 1.9709463571189307
+        "0": 1.6431743500080715,
+        "1": 1.4238989946987914,
+        "2": 1.5399694880360864,
+        "3": 1.5021243546005145
       },
-      "confidence": 1.0,
+      "confidence": 0.9887538572303821,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -140,74 +165,24 @@
         0.0,
         0.0
       ],
-      "evidence_count": 203,
-      "fitness": 13.048026229698095,
-      "id": "belief_190",
-      "local_lr": 0.1,
-      "mutation_rate": 0.12100000000000002,
-      "prototype": [
-        0.95,
-        0.29261096762140343
-      ]
-    },
-    {
-      "action_values": {
-        "0": 1.9315011422563022,
-        "1": 1.6101863072661218,
-        "2": 2.113199204061366,
-        "3": 2.0572840376653514
-      },
-      "confidence": 1.0,
-      "emotional_affinity": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "evidence_count": 223,
-      "fitness": 14.81576632439032,
-      "id": "belief_163",
-      "local_lr": 0.1,
-      "mutation_rate": 0.13310000000000002,
-      "prototype": [
-        0.95,
-        0.30274085721220384
-      ]
-    },
-    {
-      "action_values": {
-        "0": 1.8772326718351537,
-        "1": 1.574294200070375,
-        "2": 1.919621114043968,
-        "3": 1.747658345079181
-      },
-      "confidence": 0.9883857081363967,
-      "emotional_affinity": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "evidence_count": 151,
-      "fitness": 17.832878956897154,
-      "id": "belief_226",
+      "evidence_count": 142,
+      "fitness": 13.119824343370695,
+      "id": "belief_261",
       "local_lr": 0.1,
       "mutation_rate": 0.12100000000000002,
       "prototype": [
         1.9500000000000006,
-        0.3030448644706151
+        0.29968303130859886
       ]
     },
     {
       "action_values": {
-        "0": 1.153291708202275,
-        "1": 0.9236382200498231,
-        "2": 1.0227992300497917,
-        "3": 0.98839181059074
+        "0": 1.8562493733737413,
+        "1": 1.4403543244545027,
+        "2": 1.6993900875783712,
+        "3": 1.8248764145002783
       },
-      "confidence": 0.5430959219605266,
+      "confidence": 0.9964247121434838,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -215,24 +190,74 @@
         0.0,
         0.0
       ],
-      "evidence_count": 57,
-      "fitness": 22.256835593029283,
+      "evidence_count": 167,
+      "fitness": 13.062181204989729,
+      "id": "belief_225",
+      "local_lr": 0.1,
+      "mutation_rate": 0.12100000000000002,
+      "prototype": [
+        0.95,
+        0.29904410464240827
+      ]
+    },
+    {
+      "action_values": {
+        "0": 1.9398078460885044,
+        "1": 1.5248991771839848,
+        "2": 1.7829156405268405,
+        "3": 1.9082215769405715
+      },
+      "confidence": 0.9964245004785727,
+      "emotional_affinity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "evidence_count": 187,
+      "fitness": 14.708154228011423,
+      "id": "belief_200",
+      "local_lr": 0.1,
+      "mutation_rate": 0.12100000000000002,
+      "prototype": [
+        0.95,
+        0.30138876971862083
+      ]
+    },
+    {
+      "action_values": {
+        "0": 0.7726827109232101,
+        "1": 0.6319919472263947,
+        "2": 0.9081147770223064,
+        "3": 0.7881555549786212
+      },
+      "confidence": 0.5482067452379228,
+      "emotional_affinity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "evidence_count": 53,
+      "fitness": 21.553227110178426,
       "id": "belief_308",
       "local_lr": 0.1,
       "mutation_rate": 0.11000000000000001,
       "prototype": [
         2.95,
-        0.3017811432225504
+        0.2979650933980915
       ]
     },
     {
       "action_values": {
-        "0": 1.0250010930930684,
-        "1": 0.8521981402207982,
-        "2": 1.1716181465706275,
-        "3": 1.1793443204862717
+        "0": 0.9899872952458604,
+        "1": 0.7484688503368773,
+        "2": 0.9734592560156544,
+        "3": 1.058790309271908
       },
-      "confidence": 0.8361431742346797,
+      "confidence": 0.7180034089372345,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -240,24 +265,24 @@
         0.0,
         0.0
       ],
-      "evidence_count": 148,
-      "fitness": 20.922547167691476,
-      "id": "belief_283",
+      "evidence_count": 181,
+      "fitness": 17.967825623129688,
+      "id": "belief_278",
       "local_lr": 0.1,
       "mutation_rate": 0.12100000000000002,
       "prototype": [
-        0.08084468085963303,
-        0.29880425177068975
+        0.06427425631061834,
+        0.2995942183865269
       ]
     },
     {
       "action_values": {
-        "0": 1.721876324421895,
-        "1": 1.406432993467191,
-        "2": 1.7633367202926222,
-        "3": 1.5829537818554273
+        "0": 2.0178236488715906,
+        "1": 1.6046768049538858,
+        "2": 1.8608763618960815,
+        "3": 1.9859323324329146
       },
-      "confidence": 0.9883857081363967,
+      "confidence": 0.9964248224732785,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -265,24 +290,49 @@
         0.0,
         0.0
       ],
-      "evidence_count": 184,
-      "fitness": 22.29899421915421,
-      "id": "belief_169",
+      "evidence_count": 207,
+      "fitness": 16.70078544737366,
+      "id": "belief_174",
+      "local_lr": 0.1,
+      "mutation_rate": 0.13310000000000002,
+      "prototype": [
+        0.95,
+        0.29710531597545203
+      ]
+    },
+    {
+      "action_values": {
+        "0": 1.6619130656112084,
+        "1": 1.4615828638288537,
+        "2": 1.5638410123661013,
+        "3": 1.5209718162134427
+      },
+      "confidence": 0.9887538572303821,
+      "emotional_affinity": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "evidence_count": 175,
+      "fitness": 20.75681235110342,
+      "id": "belief_175",
       "local_lr": 0.1,
       "mutation_rate": 0.13310000000000002,
       "prototype": [
         1.9500000000000006,
-        0.30161106992510855
+        0.30046417964473066
       ]
     },
     {
       "action_values": {
-        "0": 2.106612125106481,
-        "1": 1.790534710854436,
-        "2": 2.2878787675383574,
-        "3": 2.232194257710307
+        "0": 2.143001467141349,
+        "1": 1.7331746632272451,
+        "2": 1.9861628444274564,
+        "3": 2.1107275478837244
       },
-      "confidence": 1.0,
+      "confidence": 0.9964248347170925,
       "emotional_affinity": [
         0.0,
         0.0,
@@ -290,205 +340,174 @@
         0.0,
         0.0
       ],
-      "evidence_count": 348,
-      "fitness": 27.96633603968519,
-      "id": "belief_1",
+      "evidence_count": 268,
+      "fitness": 21.258032597244426,
+      "id": "belief_125",
       "local_lr": 0.1,
-      "mutation_rate": 0.14641000000000004,
+      "mutation_rate": 0.13310000000000002,
       "prototype": [
-        0.95,
-        0.29744257212390085
+        0.9499999999999997,
+        0.296794406600129
       ]
     },
     {
       "action_values": {
-        "0": 1.4093020170373594,
-        "1": 1.2100573997055846,
-        "2": 1.4256225296688152,
-        "3": 1.3057946650165506
+        "0": 1.8802240554334189,
+        "1": 1.481313670956832,
+        "2": 1.7203725180641718,
+        "3": 1.8508322620672732
       },
-      "confidence": 0.7534822739539991,
+      "confidence": 0.9964695766947973,
       "emotional_affinity": [
-        -0.01347509807661494,
-        0.001516353204058954,
-        -0.013978573133042141,
-        -0.05116073217292768,
-        0.025917631118647255
-      ],
-      "evidence_count": 31,
-      "fitness": 18.055134929804556,
-      "id": "belief_334",
-      "local_lr": 0.09309680139743731,
-      "mutation_rate": 0.08199469956216729,
-      "prototype": [
-        2.00825748871964,
-        0.35311431169172813
-      ]
-    },
-    {
-      "action_values": {
-        "0": 1.8269500344898955,
-        "1": 1.5012082595033112,
-        "2": 2.007296312774362,
-        "3": 1.9489092715673035
-      },
-      "confidence": 1.0,
-      "emotional_affinity": [
-        -0.019425487380356637,
-        0.034405647149082515,
-        0.02718966997723866,
-        -0.019601439843724908,
-        0.0007823192644166309
+        -0.03573338864220611,
+        0.035406122694796933,
+        0.019217050207983838,
+        -0.04266820754220214,
+        0.0333695386480131
       ],
       "evidence_count": 43,
-      "fitness": 10.711831493615223,
+      "fitness": 13.719238869195337,
       "id": "belief_335",
-      "local_lr": 0.10074776766601025,
-      "mutation_rate": 0.1229343507967578,
+      "local_lr": 0.09159540696473568,
+      "mutation_rate": 0.1309902051286639,
       "prototype": [
-        0.9679250706246352,
-        0.3101075053949776
+        0.9460648957731574,
+        0.31800298969982366
       ]
     }
   ],
   "co_activations": {
     "belief_0_belief_15": 2,
-    "belief_0_belief_24": 11,
+    "belief_0_belief_24": 10,
     "belief_0_belief_4": 5,
-    "belief_0_belief_45": 2,
-    "belief_0_belief_54": 6,
-    "belief_0_belief_55": 4,
-    "belief_101_belief_26": 7,
-    "belief_101_belief_51": 7,
-    "belief_101_belief_76": 7,
-    "belief_107_belief_54": 1,
-    "belief_107_belief_95": 1,
-    "belief_113_belief_2": 2,
-    "belief_113_belief_87": 2,
-    "belief_133_belief_141": 1,
-    "belief_133_belief_152": 2,
-    "belief_133_belief_161": 4,
-    "belief_134_belief_159": 1,
-    "belief_134_belief_169": 7,
-    "belief_134_belief_201": 1,
-    "belief_138_belief_163": 25,
-    "belief_138_belief_190": 20,
-    "belief_138_belief_215": 15,
-    "belief_138_belief_240": 10,
-    "belief_138_belief_265": 5,
-    "belief_138_belief_287": 1,
-    "belief_161_belief_182": 2,
-    "belief_163_belief_190": 72,
-    "belief_163_belief_215": 15,
-    "belief_163_belief_240": 10,
-    "belief_163_belief_265": 58,
-    "belief_163_belief_283": 25,
-    "belief_163_belief_287": 1,
-    "belief_163_belief_309": 25,
-    "belief_163_belief_326": 1,
-    "belief_163_belief_332": 19,
-    "belief_163_belief_335": 20,
-    "belief_169_belief_201": 4,
-    "belief_169_belief_226": 42,
-    "belief_169_belief_256": 4,
-    "belief_169_belief_280": 31,
-    "belief_169_belief_307": 4,
-    "belief_169_belief_327": 20,
-    "belief_169_belief_334": 10,
-    "belief_182_belief_193": 7,
-    "belief_182_belief_194": 4,
-    "belief_182_belief_208": 1,
-    "belief_182_belief_213": 4,
-    "belief_190_belief_215": 15,
-    "belief_190_belief_240": 10,
-    "belief_190_belief_265": 57,
-    "belief_190_belief_283": 23,
-    "belief_190_belief_287": 1,
-    "belief_190_belief_309": 23,
-    "belief_190_belief_326": 1,
-    "belief_190_belief_332": 19,
-    "belief_190_belief_335": 20,
-    "belief_193_belief_194": 4,
-    "belief_193_belief_208": 1,
-    "belief_1_belief_101": 7,
-    "belief_1_belief_138": 30,
-    "belief_1_belief_163": 79,
-    "belief_1_belief_190": 72,
-    "belief_1_belief_215": 15,
-    "belief_1_belief_240": 10,
-    "belief_1_belief_26": 24,
-    "belief_1_belief_265": 58,
-    "belief_1_belief_283": 25,
-    "belief_1_belief_287": 1,
-    "belief_1_belief_309": 25,
-    "belief_1_belief_326": 1,
-    "belief_1_belief_332": 19,
-    "belief_1_belief_335": 20,
-    "belief_1_belief_51": 17,
-    "belief_1_belief_76": 11,
-    "belief_213_belief_234": 2,
-    "belief_213_belief_243": 6,
-    "belief_213_belief_244": 4,
-    "belief_215_belief_240": 10,
-    "belief_215_belief_265": 5,
-    "belief_215_belief_287": 1,
-    "belief_226_belief_256": 4,
-    "belief_226_belief_280": 31,
-    "belief_226_belief_307": 4,
-    "belief_226_belief_327": 20,
-    "belief_226_belief_334": 10,
-    "belief_240_belief_265": 5,
-    "belief_240_belief_287": 1,
-    "belief_243_belief_244": 4,
-    "belief_243_belief_258": 1,
-    "belief_243_belief_263": 8,
+    "belief_0_belief_45": 1,
+    "belief_101_belief_26": 4,
+    "belief_101_belief_51": 4,
+    "belief_101_belief_76": 4,
+    "belief_104_belief_105": 4,
+    "belief_104_belief_74": 2,
+    "belief_105_belief_74": 1,
+    "belief_111_belief_57": 2,
+    "belief_124_belief_132": 5,
+    "belief_124_belief_143": 6,
+    "belief_124_belief_158": 3,
+    "belief_125_belief_149": 4,
+    "belief_125_belief_174": 74,
+    "belief_125_belief_200": 67,
+    "belief_125_belief_225": 61,
+    "belief_125_belief_244": 3,
+    "belief_125_belief_250": 54,
+    "belief_125_belief_275": 49,
+    "belief_125_belief_278": 27,
+    "belief_125_belief_294": 3,
+    "belief_125_belief_309": 23,
+    "belief_125_belief_326": 1,
+    "belief_125_belief_332": 17,
+    "belief_125_belief_335": 20,
+    "belief_126_belief_155": 3,
+    "belief_126_belief_175": 12,
+    "belief_126_belief_206": 4,
+    "belief_126_belief_231": 1,
+    "belief_158_belief_183": 5,
+    "belief_158_belief_184": 4,
+    "belief_158_belief_198": 4,
+    "belief_174_belief_200": 67,
+    "belief_174_belief_225": 61,
+    "belief_174_belief_250": 54,
+    "belief_174_belief_275": 49,
+    "belief_174_belief_278": 24,
+    "belief_174_belief_309": 23,
+    "belief_174_belief_326": 1,
+    "belief_174_belief_332": 17,
+    "belief_174_belief_335": 20,
+    "belief_175_belief_206": 4,
+    "belief_175_belief_231": 10,
+    "belief_175_belief_261": 33,
+    "belief_175_belief_287": 28,
+    "belief_175_belief_311": 4,
+    "belief_183_belief_184": 4,
+    "belief_198_belief_219": 2,
+    "belief_198_belief_228": 7,
+    "belief_198_belief_229": 6,
+    "belief_198_belief_244": 3,
+    "belief_1_belief_101": 4,
+    "belief_1_belief_26": 22,
+    "belief_1_belief_51": 15,
+    "belief_1_belief_76": 9,
+    "belief_200_belief_225": 61,
+    "belief_200_belief_250": 54,
+    "belief_200_belief_275": 49,
+    "belief_200_belief_278": 22,
+    "belief_200_belief_309": 22,
+    "belief_200_belief_326": 1,
+    "belief_200_belief_332": 17,
+    "belief_200_belief_335": 20,
+    "belief_225_belief_250": 54,
+    "belief_225_belief_275": 49,
+    "belief_225_belief_278": 21,
+    "belief_225_belief_309": 21,
+    "belief_225_belief_326": 1,
+    "belief_225_belief_332": 17,
+    "belief_225_belief_335": 20,
+    "belief_228_belief_229": 6,
+    "belief_231_belief_261": 4,
+    "belief_244_belief_268": 3,
+    "belief_244_belief_278": 13,
+    "belief_244_belief_282": 6,
+    "belief_244_belief_294": 6,
     "belief_24_belief_45": 2,
-    "belief_263_belief_283": 2,
-    "belief_265_belief_283": 24,
-    "belief_265_belief_287": 1,
-    "belief_265_belief_309": 24,
-    "belief_265_belief_326": 1,
-    "belief_265_belief_332": 19,
-    "belief_265_belief_335": 20,
+    "belief_24_belief_54": 7,
+    "belief_24_belief_55": 4,
+    "belief_24_belief_69": 1,
+    "belief_24_belief_74": 6,
+    "belief_250_belief_275": 49,
+    "belief_250_belief_278": 19,
+    "belief_250_belief_309": 19,
+    "belief_250_belief_326": 1,
+    "belief_250_belief_332": 17,
+    "belief_250_belief_335": 20,
+    "belief_261_belief_287": 28,
+    "belief_261_belief_311": 4,
     "belief_267_belief_300": 1,
-    "belief_267_belief_308": 2,
-    "belief_26_belief_51": 17,
-    "belief_26_belief_76": 11,
-    "belief_280_belief_307": 4,
-    "belief_280_belief_327": 20,
-    "belief_280_belief_334": 10,
-    "belief_283_belief_293": 7,
-    "belief_283_belief_294": 4,
-    "belief_283_belief_305": 1,
-    "belief_283_belief_309": 50,
-    "belief_283_belief_326": 2,
-    "belief_283_belief_332": 38,
-    "belief_283_belief_335": 10,
-    "belief_293_belief_294": 4,
-    "belief_293_belief_305": 1,
+    "belief_267_belief_308": 15,
+    "belief_267_belief_334": 8,
+    "belief_26_belief_51": 15,
+    "belief_26_belief_76": 9,
+    "belief_275_belief_278": 19,
+    "belief_275_belief_309": 19,
+    "belief_275_belief_326": 1,
+    "belief_275_belief_332": 17,
+    "belief_275_belief_335": 20,
+    "belief_278_belief_282": 6,
+    "belief_278_belief_294": 6,
+    "belief_278_belief_309": 46,
+    "belief_278_belief_326": 2,
+    "belief_278_belief_332": 34,
+    "belief_278_belief_335": 10,
+    "belief_287_belief_311": 4,
     "belief_2_belief_32": 4,
-    "belief_2_belief_57": 10,
-    "belief_2_belief_87": 7,
+    "belief_2_belief_57": 11,
+    "belief_2_belief_87": 4,
+    "belief_308_belief_334": 16,
     "belief_309_belief_326": 2,
-    "belief_309_belief_332": 38,
+    "belief_309_belief_332": 34,
     "belief_309_belief_335": 10,
-    "belief_327_belief_334": 10,
     "belief_332_belief_335": 10,
     "belief_3_belief_38": 1,
     "belief_48_belief_83": 1,
-    "belief_51_belief_76": 11,
+    "belief_48_belief_93": 1,
+    "belief_51_belief_76": 9,
     "belief_54_belief_55": 4,
     "belief_54_belief_69": 1,
-    "belief_54_belief_74": 9,
-    "belief_54_belief_95": 5,
-    "belief_57_belief_87": 4
+    "belief_57_belief_87": 4,
+    "belief_74_belief_95": 2
   },
   "emotion": {
     "arousal": 1.0,
     "curiosity": 1.0,
     "dominance": 1.0,
-    "explore_bias": 0.4632793392774411,
-    "fear": 0.8367206607225589,
+    "explore_bias": 0.649312367786417,
+    "fear": 0.6506876322135831,
     "valence": 1.0
   }
 }

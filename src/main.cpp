@@ -196,7 +196,7 @@ int main()
     std::ofstream grid_log("gridworld_trajectory.csv");
     grid_log << "Episode,Step,X,Y,Reward,Done\n";
     const int num_episodes = 200; // Increased as per recommendations
-    const int max_steps_per_episode = 150;
+    const int max_steps_per_episode = 90;
     int goals_reached = 0;
     for (int ep = 0; ep < num_episodes; ++ep)
     {

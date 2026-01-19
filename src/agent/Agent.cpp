@@ -292,18 +292,18 @@ namespace dbea
         }
 
         // Debug (unchanged)
-        std::cout << "[DBEA] === Step Summary ===\n";
-        for (const auto &belief : belief_graph.nodes)
-        {
-            std::cout << "[DBEA] " << belief->id
-                      << " conf=" << belief->confidence
-                      << " fitness=" << belief->fitness
-                      << " mut_rate=" << belief->mutation_rate
-                      << " values: ";
-            for (const auto &[id, v] : belief->action_values)
-                std::cout << "(" << id << ":" << v << ") ";
-            std::cout << std::endl;
-        }
+        //std::cout << "[DBEA] === Step Summary ===\n";
+        //for (const auto &belief : belief_graph.nodes)
+        //{
+        //    std::cout << "[DBEA] " << belief->id
+        //             << " conf=" << belief->confidence
+        //              << " fitness=" << belief->fitness
+        //              << " mut_rate=" << belief->mutation_rate
+        //              << " values: ";
+        //    for (const auto &[id, v] : belief->action_values)
+        //        std::cout << "(" << id << ":" << v << ") ";
+        //    std::cout << std::endl;
+        //}
         std::cout << "[DBEA] Avg prediction error: " << avg_error
                   << " | Curiosity: " << emotion.curiosity
                   << " | Valence: " << emotion.valence
