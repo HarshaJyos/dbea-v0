@@ -79,7 +79,7 @@ namespace dbea
             double visit_inverse = 1.0 / (1.0 + state_visit_count[key] * 0.08);
             double curiosity_bonus = config.curiosity_boost * 0.7 * visit_inverse;
             if (grid_x >= 2 && grid_y >= 2)
-                curiosity_bonus *= 2.2;
+                curiosity_bonus *= 2.8;
             action_scores[1] += curiosity_bonus * 1.2; // down
             action_scores[3] += curiosity_bonus * 1.4; // right
         }
@@ -203,7 +203,7 @@ namespace dbea
             total_error += belief->prediction_error * belief->activation;
             count++;
         }
-        
+
         double avg_error = (count > 0) ? total_error / count : 0.0;
         emotion.update(last_reward, 0.05, avg_error, config);
 
@@ -214,7 +214,7 @@ namespace dbea
                 proto.decay(0.035);
         }
 
-        double dynamic_merge = config.merge_threshold + 0.04 * (1.0 - emotion.dominance);
+        double dynamic_merge = config.merge_threshold + 0.02 * (1.0 - emotion.dominance);
         belief_graph.merge_beliefs(dynamic_merge);
 
         // Adaptive prune: much gentler when population is low

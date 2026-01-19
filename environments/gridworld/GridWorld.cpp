@@ -71,7 +71,7 @@ namespace dbea
 
         bool moved = try_move(dx, dy);
         int dist = std::abs(position.first - 4) + std::abs(position.second - 4);
-        double reward = moved ? get_tile_reward(position.first, position.second) : -0.04; // single clean wall penalty
+        double reward = moved ? get_tile_reward(position.first, position.second) : -0.055; // single clean wall penalty
         double shaping = 0.0015 * (24 - dist);                                            // very soft shaping (max ~+0.036)
         reward += shaping;
         return reward;

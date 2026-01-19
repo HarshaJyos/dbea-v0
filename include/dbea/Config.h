@@ -6,9 +6,9 @@ struct Config
     double learning_rate = 0.1;
     double belief_learning_rate = 0.05;
     double belief_decay_rate = 0.01;
-    double merge_threshold = 0.965;
+    double merge_threshold = 0.94;
     bool debug_merging = true;
-    double curiosity_boost = 0.65;
+    double curiosity_boost = 0.55;
     double curiosity_decay = 0.008;
     double curiosity_threshold = 0.25;
     double curiosity_threshold_drop = 0.2;
