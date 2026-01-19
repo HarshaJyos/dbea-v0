@@ -40,7 +40,7 @@ namespace dbea
         double base_threshold = 0.93;
         if (emotion.curiosity > config.curiosity_threshold)
             base_threshold -= config.curiosity_threshold_drop * emotion.curiosity;
-        double dominance_effect = 0.18 * (1.0 - emotion.dominance);
+        double dominance_effect = 0.12 * (1.0 - emotion.dominance);
         double creation_threshold = base_threshold - dominance_effect - 0.35 * emotion.curiosity;
 
         auto belief = belief_graph.maybe_create_belief(blended, creation_threshold);
@@ -79,9 +79,7 @@ namespace dbea
             double visit_inverse = 1.0 / (1.0 + state_visit_count[key] * 0.08);
             double curiosity_bonus = config.curiosity_boost * 0.7 * visit_inverse;
             if (grid_x >= 2 && grid_y >= 2)
-                curiosity_bonus *= 2.6; // ← was 2.2, try 2.6–2.8
-            //if (grid_x >= 3 && grid_y >= 3)
-            //   curiosity_bonus *= 1.4;                // extra kick when very close
+                curiosity_bonus *= 2.2;
             action_scores[1] += curiosity_bonus * 1.2; // down
             action_scores[3] += curiosity_bonus * 1.4; // right
         }
@@ -175,77 +173,37 @@ namespace dbea
         for (auto &belief : belief_graph.nodes)
         {
             double credit = belief->activation * (last_reward + progress_bonus);
-            double surprise_factor = 1.0 + 2.5 * std::abs(last_reward - last_predicted_reward);
+            double surprise_factor = 1.0 + 2.0 * std::abs(last_reward - last_predicted_reward);
+
+            // Q-learning update (same as before)
             belief->learn_action_value(last_action.id, credit, belief->local_lr * surprise_factor, config.gamma);
+
+            // Clamp values to prevent explosion
             for (auto &[id, val] : belief->action_values)
             {
                 if (!std::isfinite(val))
-                    val = 0.1;                    // Reset to initial if nan
-                val = std::clamp(val, -1.0, 5.0); // Reasonable bounds
+                    val = 0.1;
+                val = std::clamp(val, -1.0, 5.0);
             }
 
+            // Confidence update
             if (credit > 0.0)
                 belief->reinforce(config.belief_learning_rate * credit * reinforcement_mod);
             else
                 belief->decay(config.belief_decay_rate * fear_decay_boost);
 
+            // Simple fitness = running average TD error reduction + credit
+            double delta_td = last_reward + config.gamma * belief->predict_action_value(last_action.id) - belief->last_predicted_reward;
+            belief->fitness += 0.015 * delta_td * belief->activation;
+            belief->fitness = std::max(0.0, belief->fitness);
+
+            // Prediction error tracking
             double error = std::abs(last_reward - last_predicted_reward);
             belief->prediction_error = 0.7 * belief->prediction_error + 0.3 * error;
             total_error += belief->prediction_error * belief->activation;
             count++;
-
-            // NEW: Fitness update with niche and symbiotic terms
-            double alpha_bt = belief->activation / (total_activation + 1e-6);
-            double delta_td = last_reward + config.gamma * belief->predict_action_value(last_action.id) - belief->last_predicted_reward;
-            bool causal_mask = (alpha_bt > 0.2); // Simplified mask
-            double regret_bonus = std::max(0.0, std::max({belief->action_values[0], belief->action_values[1], belief->action_values[2], belief->action_values[3]}) - belief->action_values[last_action.id]);
-            double regret_penalty = std::max(0.0, belief->action_values[last_action.id] - std::max({belief->action_values[0], belief->action_values[1], belief->action_values[2], belief->action_values[3]}));
-
-            // Niche density: Count close beliefs
-            int niche_count = 0;
-            for (const auto &other : belief_graph.nodes)
-                if (other != belief && belief->match_score(other->prototype) > config.niche_radius)
-                    niche_count++;
-            double niche_density = niche_count / (belief_graph.nodes.size() + 1e-6);
-            double niche_bonus = config.niche_bonus_scale * (1.0 - niche_density);
-
-            // Symbiotic uplift
-            double symbiotic_income = 0.0;
-            int partner_count = 0;
-            for (const auto &[key, count] : belief_graph.co_activations)
-            {
-                if (key.find(belief->id) != std::string::npos && count > 5) // Arbitrary min co-act
-                {
-                    // Parse other ID from key
-                    std::string other_id = key.substr(0, key.find("_")) == belief->id ? key.substr(key.find("_") + 1) : key.substr(0, key.find("_"));
-                    for (const auto &other : belief_graph.nodes)
-                    {
-                        if (other->id == other_id)
-                        {
-                            symbiotic_income += other->fitness;
-                            partner_count++;
-                            break;
-                        }
-                    }
-                }
-            }
-            double symbiotic_uplift_term = config.symbiotic_uplift * (symbiotic_income / (partner_count + 1e-6));
-
-            // Delta fitness
-            double delta_fitness = 0.01 * alpha_bt * delta_td * (causal_mask ? 1.0 : 0.0) +
-                                   0.2 * regret_bonus - 0.4 * regret_penalty +
-                                   niche_bonus + symbiotic_uplift_term;
-
-            belief->fitness += delta_fitness;
-
-            // CRITICAL: Prevent NaN propagation
-            if (!std::isfinite(belief->fitness))
-            {
-                belief->fitness = (belief->id == "proto-belief") ? 2.0 : 0.5;
-            }
-            belief->fitness = std::max(0.0, belief->fitness); // Never negative
         }
-
+        
         double avg_error = (count > 0) ? total_error / count : 0.0;
         emotion.update(last_reward, 0.05, avg_error, config);
 
@@ -292,18 +250,18 @@ namespace dbea
         }
 
         // Debug (unchanged)
-        //std::cout << "[DBEA] === Step Summary ===\n";
-        //for (const auto &belief : belief_graph.nodes)
-        //{
-        //    std::cout << "[DBEA] " << belief->id
-        //             << " conf=" << belief->confidence
-        //              << " fitness=" << belief->fitness
-        //              << " mut_rate=" << belief->mutation_rate
-        //              << " values: ";
-        //    for (const auto &[id, v] : belief->action_values)
-        //        std::cout << "(" << id << ":" << v << ") ";
-        //    std::cout << std::endl;
-        //}
+        std::cout << "[DBEA] === Step Summary ===\n";
+        for (const auto &belief : belief_graph.nodes)
+        {
+            std::cout << "[DBEA] " << belief->id
+                      << " conf=" << belief->confidence
+                      << " fitness=" << belief->fitness
+                      << " mut_rate=" << belief->mutation_rate
+                      << " values: ";
+            for (const auto &[id, v] : belief->action_values)
+                std::cout << "(" << id << ":" << v << ") ";
+            std::cout << std::endl;
+        }
         std::cout << "[DBEA] Avg prediction error: " << avg_error
                   << " | Curiosity: " << emotion.curiosity
                   << " | Valence: " << emotion.valence
